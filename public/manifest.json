@@ -1,0 +1,16 @@
+{
+  "name": "ApniDukaan",
+  "short_name": "ApniDukaan",
+  "description": "Dinanagar ka apna online kirana store",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F8F9FA",
+  "theme_color": "#E8590C",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64",
+      "type": "image/x-icon"
+    }
+  ]
+}
