@@ -30,12 +30,13 @@ const WholesaleCheckout = () => {
   const [notes, setNotes] = useState("");
 
   // Fetch products to check MOQ
+  // Fetch products to check MOQ and stock
   const { data: products } = useQuery({
-    queryKey: ["products-moq"],
+    queryKey: ["products-moq-stock"],
     queryFn: async () => {
       const ids = items.map(i => i.id);
       if (ids.length === 0) return [];
-      const { data } = await supabase.from("products").select("id, min_wholesale_qty").in("id", ids);
+      const { data } = await supabase.from("products").select("id, min_wholesale_qty, stock").in("id", ids);
       return data || [];
     },
     enabled: items.length > 0,
@@ -54,7 +55,18 @@ const WholesaleCheckout = () => {
     return { ...item, minQty: product?.min_wholesale_qty || 1 };
   });
 
+  // Check stock violations
+  const stockViolations = items.filter(item => {
+    const product = products?.find((p: any) => p.id === item.id);
+    const stock = product?.stock ?? 0;
+    return item.quantity > stock;
+  }).map(item => {
+    const product = products?.find((p: any) => p.id === item.id);
+    return { ...item, stock: product?.stock ?? 0 };
+  });
+
   const hasMoqViolations = moqViolations.length > 0;
+  const hasStockViolations = stockViolations.length > 0;
 
   if (items.length === 0) {
     return (
