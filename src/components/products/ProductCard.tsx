@@ -25,6 +25,7 @@ const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(({ id, name, pr
 
   return (
     <motion.div
+      ref={ref}
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       className="group relative flex flex-col overflow-hidden rounded-2xl border bg-card transition-all hover:shadow-lg hover:-translate-y-0.5"
