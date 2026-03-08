@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff, ShoppingBag, ArrowRight, Truck, Clock, Shield, Mail, Lock, User, Phone } from "lucide-react";
+import { useRateLimit } from "@/hooks/use-rate-limit";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -20,13 +21,24 @@ const Auth = () => {
   const [forgotEmail, setForgotEmail] = useState("");
   const [showLoginPw, setShowLoginPw] = useState(false);
   const [showSignupPw, setShowSignupPw] = useState(false);
+  const loginRate = useRateLimit();
+  const signupRate = useRateLimit();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loginRate.isLocked) {
+      toast.error(`Too many attempts. Try again in ${loginRate.cooldownSeconds}s`);
+      return;
+    }
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword(loginForm);
     setLoading(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      loginRate.recordAttempt();
+      toast.error(error.message);
+      return;
+    }
+    loginRate.resetAttempts();
     toast.success("Logged in!");
     navigate(redirectTo);
   };
@@ -46,6 +58,10 @@ const Auth = () => {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (signupRate.isLocked) {
+      toast.error(`Too many attempts. Try again in ${signupRate.cooldownSeconds}s`);
+      return;
+    }
     const name = signupForm.name.trim();
     const phone = signupForm.phone.trim();
     if (name.length < 2 || name.length > 100) { toast.error("Name must be 2-100 characters"); return; }
@@ -62,7 +78,12 @@ const Auth = () => {
       },
     });
     setLoading(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      signupRate.recordAttempt();
+      toast.error(error.message);
+      return;
+    }
+    signupRate.resetAttempts();
     toast.success("Account created! Check your email to verify.");
   };
 
@@ -82,12 +103,7 @@ const Auth = () => {
             backgroundSize: "32px 32px",
           }} />
         </div>
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
-          className="relative z-10 max-w-md"
-        >
+        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }} className="relative z-10 max-w-md">
           <div className="flex items-center gap-3 mb-8">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm">
               <ShoppingBag className="h-7 w-7 text-white" />
@@ -97,21 +113,13 @@ const Auth = () => {
               <p className="text-white/70 text-sm">Dinanagar ka apna kirana store</p>
             </div>
           </div>
-
           <h2 className="text-2xl font-bold text-white mb-6 leading-tight">
             Ghar baithe grocery order karo, <br />
             <span className="text-white/80">30 minute mein delivery!</span>
           </h2>
-
           <div className="space-y-4">
             {features.map((f, i) => (
-              <motion.div
-                key={f.text}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 + i * 0.1 }}
-                className="flex items-center gap-3"
-              >
+              <motion.div key={f.text} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 + i * 0.1 }} className="flex items-center gap-3">
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/15 backdrop-blur-sm">
                   <f.icon className="h-5 w-5 text-white" />
                 </div>
@@ -124,13 +132,7 @@ const Auth = () => {
 
       {/* Right side - forms */}
       <div className="flex-1 flex items-center justify-center p-4 sm:p-8">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="w-full max-w-md"
-        >
-          {/* Mobile header */}
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="w-full max-w-md">
           <div className="lg:hidden mb-8 text-center">
             <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 mb-3">
               <ShoppingBag className="h-7 w-7 text-primary" />
@@ -138,8 +140,6 @@ const Auth = () => {
             <h1 className="font-heading text-2xl font-bold">Welcome to ApniDukaan</h1>
             <p className="text-sm text-muted-foreground mt-1">Login or create an account to start shopping</p>
           </div>
-
-          {/* Desktop header */}
           <div className="hidden lg:block mb-8">
             <h2 className="font-heading text-2xl font-bold">Welcome back!</h2>
             <p className="text-sm text-muted-foreground mt-1">Login or create your account to continue</p>
@@ -154,40 +154,21 @@ const Auth = () => {
             <TabsContent value="login">
               <AnimatePresence mode="wait">
                 {!showForgot ? (
-                  <motion.form
-                    key="login"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    onSubmit={handleLogin}
-                    className="space-y-4"
-                  >
+                  <motion.form key="login" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onSubmit={handleLogin} className="space-y-4">
                     <div className="space-y-2">
                       <Label className="text-sm font-medium">Email</Label>
                       <div className="relative">
                         <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          type="email"
-                          className="h-11 rounded-xl pl-10"
-                          placeholder="you@email.com"
-                          value={loginForm.email}
-                          onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })}
-                          required
-                        />
+                        <Input type="email" className="h-11 rounded-xl pl-10" placeholder="you@email.com" value={loginForm.email}
+                          onChange={(e) => setLoginForm({ ...loginForm, email: e.target.value })} required />
                       </div>
                     </div>
                     <div className="space-y-2">
                       <Label className="text-sm font-medium">Password</Label>
                       <div className="relative">
                         <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          type={showLoginPw ? "text" : "password"}
-                          className="h-11 rounded-xl pl-10 pr-10"
-                          placeholder="••••••••"
-                          value={loginForm.password}
-                          onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })}
-                          required
-                        />
+                        <Input type={showLoginPw ? "text" : "password"} className="h-11 rounded-xl pl-10 pr-10" placeholder="••••••••" value={loginForm.password}
+                          onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })} required />
                         <button type="button" className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground" onClick={() => setShowLoginPw(!showLoginPw)}>
                           {showLoginPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </button>
@@ -198,7 +179,12 @@ const Auth = () => {
                         Forgot password?
                       </button>
                     </div>
-                    <Button type="submit" className="h-11 w-full rounded-xl font-semibold text-sm" disabled={loading}>
+
+                    {loginRate.isLocked && (
+                      <p className="text-xs text-destructive text-center">Too many attempts. Try again in {loginRate.cooldownSeconds}s</p>
+                    )}
+
+                    <Button type="submit" className="h-11 w-full rounded-xl font-semibold text-sm" disabled={loading || loginRate.isLocked}>
                       {loading ? (
                         <span className="flex items-center gap-2">
                           <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
@@ -212,13 +198,7 @@ const Auth = () => {
                     </Button>
                   </motion.form>
                 ) : (
-                  <motion.div
-                    key="forgot"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="space-y-4"
-                  >
+                  <motion.div key="forgot" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
                     <div className="text-center mb-2">
                       <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mb-3">
                         <Mail className="h-5 w-5 text-primary" />
@@ -229,14 +209,8 @@ const Auth = () => {
                     <form onSubmit={handleForgotPassword} className="space-y-4">
                       <div className="relative">
                         <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          type="email"
-                          className="h-11 rounded-xl pl-10"
-                          placeholder="Enter your email"
-                          value={forgotEmail}
-                          onChange={(e) => setForgotEmail(e.target.value)}
-                          required
-                        />
+                        <Input type="email" className="h-11 rounded-xl pl-10" placeholder="Enter your email" value={forgotEmail}
+                          onChange={(e) => setForgotEmail(e.target.value)} required />
                       </div>
                       <div className="flex gap-2">
                         <Button type="submit" className="flex-1 h-10 rounded-xl text-sm" disabled={loading}>
@@ -253,70 +227,48 @@ const Auth = () => {
             </TabsContent>
 
             <TabsContent value="signup">
-              <motion.form
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                onSubmit={handleSignup}
-                className="space-y-4"
-              >
+              <motion.form initial={{ opacity: 0 }} animate={{ opacity: 1 }} onSubmit={handleSignup} className="space-y-4">
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Full Name</Label>
                   <div className="relative">
                     <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      className="h-11 rounded-xl pl-10"
-                      placeholder="Your name"
-                      value={signupForm.name}
-                      onChange={(e) => setSignupForm({ ...signupForm, name: e.target.value })}
-                      required
-                    />
+                    <Input className="h-11 rounded-xl pl-10" placeholder="Your name" maxLength={100} value={signupForm.name}
+                      onChange={(e) => setSignupForm({ ...signupForm, name: e.target.value })} required />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">WhatsApp Number</Label>
                   <div className="relative">
                     <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      className="h-11 rounded-xl pl-10"
-                      placeholder="9876543210"
-                      value={signupForm.phone}
-                      onChange={(e) => setSignupForm({ ...signupForm, phone: e.target.value })}
-                      required
-                    />
+                    <Input className="h-11 rounded-xl pl-10" placeholder="9876543210" maxLength={10} value={signupForm.phone}
+                      onChange={(e) => setSignupForm({ ...signupForm, phone: e.target.value.replace(/\D/g, "") })} required />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Email</Label>
                   <div className="relative">
                     <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type="email"
-                      className="h-11 rounded-xl pl-10"
-                      placeholder="you@email.com"
-                      value={signupForm.email}
-                      onChange={(e) => setSignupForm({ ...signupForm, email: e.target.value })}
-                      required
-                    />
+                    <Input type="email" className="h-11 rounded-xl pl-10" placeholder="you@email.com" value={signupForm.email}
+                      onChange={(e) => setSignupForm({ ...signupForm, email: e.target.value })} required />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <Label className="text-sm font-medium">Password</Label>
                   <div className="relative">
                     <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      type={showSignupPw ? "text" : "password"}
-                      className="h-11 rounded-xl pl-10 pr-10"
-                      placeholder="Min 6 characters"
-                      value={signupForm.password}
-                      onChange={(e) => setSignupForm({ ...signupForm, password: e.target.value })}
-                      required
-                    />
+                    <Input type={showSignupPw ? "text" : "password"} className="h-11 rounded-xl pl-10 pr-10" placeholder="Min 6 characters" value={signupForm.password}
+                      onChange={(e) => setSignupForm({ ...signupForm, password: e.target.value })} required />
                     <button type="button" className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground" onClick={() => setShowSignupPw(!showSignupPw)}>
                       {showSignupPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
                 </div>
-                <Button type="submit" className="h-11 w-full rounded-xl font-semibold text-sm" disabled={loading}>
+
+                {signupRate.isLocked && (
+                  <p className="text-xs text-destructive text-center">Too many attempts. Try again in {signupRate.cooldownSeconds}s</p>
+                )}
+
+                <Button type="submit" className="h-11 w-full rounded-xl font-semibold text-sm" disabled={loading || signupRate.isLocked}>
                   {loading ? (
                     <span className="flex items-center gap-2">
                       <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
@@ -333,13 +285,7 @@ const Auth = () => {
             </TabsContent>
           </Tabs>
 
-          {/* Wholesale CTA */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="mt-4 rounded-xl border border-secondary/20 bg-secondary/5 p-4 text-center"
-          >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mt-4 rounded-xl border border-secondary/20 bg-secondary/5 p-4 text-center">
             <p className="text-sm text-muted-foreground">
               Shop owner?{" "}
               <Link to="/wholesale-register" className="font-semibold text-secondary hover:underline">
