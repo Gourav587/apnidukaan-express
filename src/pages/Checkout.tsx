@@ -58,7 +58,7 @@ const Checkout = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
 
-      const { error } = await supabase.from("orders").insert({
+      const { data, error } = await supabase.from("orders").insert({
         user_id: user?.id || null,
         items: items.map((i) => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity, unit: i.unit })),
         total,
@@ -69,7 +69,7 @@ const Checkout = () => {
         phone: form.phone,
         customer_name: form.name,
         customer_type: "retail",
-      });
+      }).select("id").single();
 
       if (error) throw error;
 
