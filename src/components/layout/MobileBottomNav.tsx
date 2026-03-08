@@ -1,4 +1,4 @@
-import { Home, Search, ShoppingCart, Package, User } from "lucide-react";
+import { Home, Search, ShoppingCart, Heart, User } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useCartStore } from "@/lib/cart-store";
 import { motion } from "framer-motion";
@@ -7,7 +7,7 @@ const tabs = [
   { to: "/", icon: Home, label: "Home" },
   { to: "/products", icon: Search, label: "Products" },
   { to: "__cart__", icon: ShoppingCart, label: "Cart" },
-  { to: "/orders", icon: Package, label: "Orders" },
+  { to: "/wishlist", icon: Heart, label: "Wishlist" },
   { to: "/auth", icon: User, label: "Account" },
 ];
 
@@ -16,7 +16,6 @@ const MobileBottomNav = () => {
   const totalItems = useCartStore((s) => s.totalItems());
   const toggleCart = useCartStore((s) => s.toggleCart);
 
-  // Hide on admin pages and checkout
   if (location.pathname.startsWith("/admin")) return null;
 
   return (
