@@ -40,6 +40,32 @@ export function AdminOrders() {
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
       const { error } = await supabase.from("orders").update({ status }).eq("id", id);
       if (error) throw error;
+
+      // Send push notification to the customer
+      const order = orders?.find((o: any) => o.id === id);
+      if (order?.user_id) {
+        const statusLabels: Record<string, string> = {
+          confirmed: "Your order has been confirmed! ✅",
+          packed: "Your order is packed and ready! 📦",
+          out_for_delivery: "Your order is out for delivery! 🚚",
+          delivered: "Your order has been delivered! 🎉",
+          cancelled: "Your order has been cancelled ❌",
+        };
+        const body = statusLabels[status] || `Order status updated to ${status}`;
+        try {
+          await supabase.functions.invoke("push-notifications", {
+            body: {
+              action: "send",
+              userId: order.user_id,
+              title: "🛒 ApniDukaan Order Update",
+              body,
+              url: "/orders",
+            },
+          });
+        } catch (e) {
+          console.error("Push notification failed:", e);
+        }
+      }
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["admin-orders"] }); toast.success("Status updated"); },
   });
