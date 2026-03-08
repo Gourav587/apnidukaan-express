@@ -623,29 +623,29 @@ const WholesaleProductRow = ({ product }: { product: any }) => {
 
         {/* Bulk buttons & qty */}
         {!isOutOfStock && (
-          <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+          <div className="flex items-center gap-1 sm:gap-1.5 mt-1.5 sm:mt-2 flex-wrap">
             {itemInCart ? (
-              <div className="flex items-center gap-1 rounded-lg border bg-muted/50 px-1">
-                <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => removeItem(product.id)}>
+              <div className="flex items-center gap-0.5 sm:gap-1 rounded-lg border bg-muted/50 px-1">
+                <Button size="icon" variant="ghost" className="h-7 w-7 sm:h-6 sm:w-6" onClick={() => removeItem(product.id)}>
                   <Minus className="h-3 w-3" />
                 </Button>
-                <span className={`text-sm font-semibold w-8 text-center ${belowMin ? "text-destructive" : ""}`}>{itemInCart.quantity}</span>
-                <Button size="icon" variant="ghost" className="h-6 w-6" disabled={atMaxStock} onClick={handleAddOne}>
+                <span className={`text-sm font-semibold w-7 sm:w-8 text-center ${belowMin ? "text-destructive" : ""}`}>{itemInCart.quantity}</span>
+                <Button size="icon" variant="ghost" className="h-7 w-7 sm:h-6 sm:w-6" disabled={atMaxStock} onClick={handleAddOne}>
                   <Plus className="h-3 w-3" />
                 </Button>
               </div>
             ) : minQty > 1 ? (
-              <Button size="sm" className="h-7 text-xs rounded-lg bg-secondary hover:bg-secondary/90"
+              <Button size="sm" className="h-8 sm:h-7 text-xs rounded-lg bg-secondary hover:bg-secondary/90"
                 onClick={addMinQty}>
                 + Add {Math.min(minQty, stock)}
               </Button>
             ) : (
-              <Button size="sm" className="h-7 text-xs rounded-lg bg-secondary hover:bg-secondary/90"
+              <Button size="sm" className="h-8 sm:h-7 text-xs rounded-lg bg-secondary hover:bg-secondary/90"
                 onClick={handleAddOne}>
                 + Add
               </Button>
             )}
-            {BULK_PRESETS.filter(q => q >= minQty && q <= stock).map((qty) => (
+            {BULK_PRESETS.filter(q => q >= minQty && q <= stock).slice(0, 3).map((qty) => (
               <Button key={qty} size="sm" variant="outline" className="h-7 text-[10px] rounded-lg px-2"
                 disabled={remainingStock < qty}
                 onClick={() => addMultiple(qty)}>
