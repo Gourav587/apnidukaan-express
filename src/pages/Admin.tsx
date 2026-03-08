@@ -64,7 +64,7 @@ const Admin = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { navigate("/admin-login"); return; }
       const { data } = await supabase.from("user_roles").select("role").eq("user_id", user.id).eq("role", "admin").maybeSingle();
-      if (!data) { toast.error("Access denied"); navigate("/"); return; }
+      if (!data) { toast.error("Access denied"); navigate("/admin-login"); return; }
       setIsAdmin(true);
     };
     checkAdmin();
