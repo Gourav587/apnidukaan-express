@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import Layout from "@/components/layout/Layout";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 
 const Index = lazy(() => import("./pages/Index"));
