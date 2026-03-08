@@ -44,8 +44,10 @@ const App = () => (
             </Route>
             <Route path="/admin" element={<Admin />} />
             <Route path="/wholesale" element={<Wholesale />} />
+            <Route path="/wholesale-checkout" element={<WholesaleCheckout />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <AIChatbot />
         </Suspense>
       </BrowserRouter>
     </TooltipProvider>

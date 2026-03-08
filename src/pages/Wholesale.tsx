@@ -108,6 +108,7 @@ const Wholesale = () => {
           </Link>
           <div className="flex items-center gap-3">
             <span className="text-sm text-muted-foreground hidden sm:block">Welcome, {profile?.name || "Wholesaler"}</span>
+            <CartDrawer checkoutPath="/wholesale-checkout" />
             <Button variant="ghost" size="sm" onClick={async () => { await supabase.auth.signOut(); navigate("/"); }}>
               <LogOut className="h-4 w-4" />
             </Button>
