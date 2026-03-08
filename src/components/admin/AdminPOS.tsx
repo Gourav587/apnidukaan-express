@@ -299,7 +299,7 @@ function BillDialog({
     try {
       const finalTotal = Math.round(total * 100) / 100;
       const payload = {
-        items: billItems.map((i) => ({ name: i.name, price: i.price, quantity: i.quantity, unit: i.unit })),
+        items: billItems.map((i) => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity, unit: i.unit })),
         total: finalTotal,
         status: "delivered",
         customer_type: "retail",
