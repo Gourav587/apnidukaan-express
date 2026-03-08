@@ -149,10 +149,10 @@ export function AdminOrders() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedOrders.length === 0 && (
-              <TableRow><TableCell colSpan={8} className="text-center py-12 text-muted-foreground">No orders found</TableCell></TableRow>
+            {orders.length === 0 && (
+              <TableRow><TableCell colSpan={8} className="text-center py-12 text-muted-foreground">{isLoading ? "Loading..." : "No orders found"}</TableCell></TableRow>
             )}
-            {paginatedOrders.map((order: any) => (
+            {orders.map((order: any) => (
               <TableRow key={order.id}>
                 <TableCell className="font-mono text-xs">#{order.id.slice(0, 8)}</TableCell>
                 <TableCell>
