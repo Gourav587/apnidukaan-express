@@ -108,6 +108,7 @@ const Wholesale = () => {
           </Link>
           <div className="flex items-center gap-3">
             <span className="text-sm text-muted-foreground hidden sm:block">Welcome, {profile?.name || "Wholesaler"}</span>
+            <WholesaleCartButton />
             <CartDrawer checkoutPath="/wholesale-checkout" />
             <Button variant="ghost" size="sm" onClick={async () => { await supabase.auth.signOut(); navigate("/"); }}>
               <LogOut className="h-4 w-4" />
@@ -224,6 +225,21 @@ const Wholesale = () => {
         </Tabs>
       </div>
     </div>
+  );
+};
+// Cart button for wholesale header
+const WholesaleCartButton = () => {
+  const totalItems = useCartStore((s) => s.totalItems());
+  const toggleCart = useCartStore((s) => s.toggleCart);
+  return (
+    <Button variant="ghost" size="icon" className="relative" onClick={toggleCart}>
+      <ShoppingBag className="h-5 w-5" />
+      {totalItems > 0 && (
+        <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+          {totalItems}
+        </span>
+      )}
+    </Button>
   );
 };
 
