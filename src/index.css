@@ -99,10 +99,22 @@
   body {
     @apply bg-background text-foreground font-sans;
     -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Poppins', sans-serif;
+  }
+
+  /* Better touch targets */
+  button, a, [role="button"] {
+    min-height: 32px;
+  }
+
+  /* Prevent pull-to-refresh on mobile when scrolling within page */
+  html {
+    overscroll-behavior-y: contain;
   }
 }
 
@@ -111,11 +123,28 @@
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Smooth momentum scrolling */
+  .scroll-smooth-touch {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Snap scrolling for horizontal carousels */
+  .snap-x {
+    scroll-snap-type: x mandatory;
+  }
+  .snap-center {
+    scroll-snap-align: center;
   }
 }

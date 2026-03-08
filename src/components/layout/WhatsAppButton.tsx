@@ -3,10 +3,10 @@ const WhatsAppButton = () => (
     href="https://wa.me/919888246069?text=Hi%20ApniDukaan!"
     target="_blank"
     rel="noopener noreferrer"
-    className="fixed bottom-20 right-4 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-transform hover:scale-110 md:bottom-6 md:right-6 md:h-14 md:w-14"
+    className="fixed bottom-[4.5rem] right-3 z-40 flex h-11 w-11 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-transform hover:scale-110 active:scale-95 md:bottom-6 md:right-6 md:h-14 md:w-14"
     aria-label="WhatsApp"
   >
-    <svg viewBox="0 0 32 32" className="h-6 w-6 md:h-7 md:w-7 fill-current">
+    <svg viewBox="0 0 32 32" className="h-5 w-5 md:h-7 md:w-7 fill-current">
       <path d="M16.004 0h-.008C7.174 0 0 7.176 0 16c0 3.5 1.128 6.744 3.046 9.378L1.054 31.29l6.118-1.958A15.9 15.9 0 0 0 16.004 32C24.826 32 32 24.822 32 16S24.826 0 16.004 0Zm9.32 22.614c-.39 1.1-1.932 2.014-3.18 2.28-.854.18-1.968.324-5.72-1.23-4.8-1.988-7.886-6.86-8.124-7.18-.228-.32-1.918-2.556-1.918-4.876 0-2.32 1.214-3.462 1.644-3.936.39-.43.914-.608 1.22-.608.152 0 .288.008.41.014.43.018.644.042.928.72.354.846 1.218 2.976 1.324 3.194.108.218.216.516.066.816-.14.306-.264.442-.482.694-.218.252-.424.444-.642.716-.196.238-.416.492-.172.922.244.424 1.084 1.786 2.328 2.894 1.598 1.424 2.888 1.882 3.356 2.076.354.148.774.108 1.028-.17.322-.356.72-.944 1.124-1.526.288-.414.65-.468 1.038-.314.392.148 2.484 1.172 2.912 1.386.428.218.714.324.82.504.104.178.104 1.042-.286 2.144Z" />
     </svg>
   </a>
