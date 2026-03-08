@@ -211,6 +211,14 @@ const Wholesale = () => {
             <TabsTrigger value="analytics" className="gap-1 text-xs sm:text-sm"><BarChart3 className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Analytics</span><span className="sm:hidden">Stats</span></TabsTrigger>
           </TabsList>
 
+          <motion.div
+            key={activeTab}
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.15}
+            onDragEnd={handleSwipe}
+            className="touch-pan-y"
+          >
           {/* Products Tab */}
           <TabsContent value="products">
             <div className="relative mb-4">
