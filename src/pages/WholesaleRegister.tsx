@@ -217,8 +217,7 @@ const WholesaleRegister = () => {
             <div className="mt-6 rounded-xl bg-secondary/5 border border-secondary/20 p-4">
               <p className="text-xs text-muted-foreground">
                 <strong className="text-foreground">Minimum order:</strong> ₹2,000 per order<br />
-                <strong className="text-foreground">Approval:</strong> 1-2 business days<br />
-                <strong className="text-foreground">Support:</strong> Dedicated WhatsApp line
+                <strong className="text-foreground">Approval:</strong> 1-2 business days
               </p>
             </div>
           </motion.div>
