@@ -1,0 +1,1 @@
+ALTER TABLE public.products ADD COLUMN max_retail_qty integer NOT NULL DEFAULT 5;

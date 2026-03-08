@@ -290,6 +290,7 @@ export type Database = {
           id: string
           image_url: string | null
           is_active: boolean
+          max_retail_qty: number
           max_wholesale_qty: number | null
           min_wholesale_qty: number
           mrp: number | null
@@ -308,6 +309,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_active?: boolean
+          max_retail_qty?: number
           max_wholesale_qty?: number | null
           min_wholesale_qty?: number
           mrp?: number | null
@@ -326,6 +328,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_active?: boolean
+          max_retail_qty?: number
           max_wholesale_qty?: number | null
           min_wholesale_qty?: number
           mrp?: number | null
