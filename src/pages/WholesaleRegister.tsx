@@ -74,6 +74,11 @@ const WholesaleRegister = () => {
       }).eq("user_id", data.user.id);
     }
 
+    // Auto-send WhatsApp notification to admin
+    const STORE_PHONE = "917888918171";
+    const whatsappMsg = `🏪 *New Wholesale Registration!*\n\n👤 *Owner:* ${signupForm.ownerName}\n🏬 *Shop:* ${signupForm.shopName}\n📞 *Phone:* ${signupForm.phone}\n📍 *Village:* ${signupForm.village}\n🏠 *Address:* ${signupForm.address}${signupForm.gstNumber ? `\n🏷️ *GST:* ${signupForm.gstNumber}` : ""}\n📧 *Email:* ${signupForm.email}\n\n⏳ *Status:* Pending Approval\n\nPlease review in Admin Panel → Wholesale → Approvals`;
+    window.open(`https://wa.me/${STORE_PHONE}?text=${encodeURIComponent(whatsappMsg)}`, "_blank");
+
     setLoading(false);
     setSubmitted(true);
     toast.success("Application submitted! We'll review it soon.");
