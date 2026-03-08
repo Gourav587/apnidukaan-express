@@ -16,12 +16,12 @@ const MobileBottomNav = () => {
   const totalItems = useCartStore((s) => s.totalItems());
   const toggleCart = useCartStore((s) => s.toggleCart);
 
-  // Hide on admin pages
+  // Hide on admin pages and checkout
   if (location.pathname.startsWith("/admin")) return null;
 
   return (
     <nav className="fixed bottom-0 inset-x-0 z-50 border-t bg-card/95 backdrop-blur-lg md:hidden safe-area-bottom">
-      <div className="grid grid-cols-5 h-16">
+      <div className="grid grid-cols-5 h-14">
         {tabs.map((tab) => {
           const isCart = tab.to === "__cart__";
           const isActive = !isCart && (
@@ -35,9 +35,9 @@ const MobileBottomNav = () => {
               <button
                 key={tab.label}
                 onClick={toggleCart}
-                className="flex flex-col items-center justify-center gap-0.5 relative"
+                className="flex flex-col items-center justify-center gap-0.5 relative active:scale-95 transition-transform"
               >
-                <div className="relative flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/30 -mt-4">
+                <div className="relative flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/30 -mt-5">
                   <tab.icon className="h-5 w-5" />
                   {totalItems > 0 && (
                     <motion.span
@@ -58,16 +58,17 @@ const MobileBottomNav = () => {
             <Link
               key={tab.label}
               to={tab.to}
-              className={`flex flex-col items-center justify-center gap-0.5 transition-colors ${
+              className={`flex flex-col items-center justify-center gap-0.5 transition-colors relative active:scale-95 ${
                 isActive ? "text-primary" : "text-muted-foreground"
               }`}
             >
-              <tab.icon className="h-5 w-5" />
+              <tab.icon className={`h-5 w-5 transition-transform ${isActive ? "scale-110" : ""}`} />
               <span className="text-[10px] font-medium">{tab.label}</span>
               {isActive && (
                 <motion.div
                   layoutId="bottomnav-indicator"
                   className="absolute top-0 h-0.5 w-8 rounded-full bg-primary"
+                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
                 />
               )}
             </Link>

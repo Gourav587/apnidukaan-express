@@ -19,7 +19,6 @@ const CartDrawer = ({ checkoutPath = "/checkout", isWholesale = false }: { check
   const total = sub + delivery;
   const progressToFree = Math.min((sub / FREE_DELIVERY_THRESHOLD) * 100, 100);
 
-  // Fetch stock for items in cart
   const { data: stockData } = useQuery({
     queryKey: ["cart-stock", items.map(i => i.id).join(",")],
     queryFn: async () => {
@@ -51,8 +50,8 @@ const CartDrawer = ({ checkoutPath = "/checkout", isWholesale = false }: { check
 
   return (
     <Sheet open={isOpen} onOpenChange={setOpen}>
-      <SheetContent className="flex w-full flex-col sm:max-w-md">
-        <SheetHeader>
+      <SheetContent className="flex w-full flex-col p-0 sm:max-w-md sm:p-0">
+        <SheetHeader className="px-4 pt-4 pb-3 sm:px-6 sm:pt-6 border-b">
           <SheetTitle className="flex items-center gap-2 font-heading">
             <ShoppingBag className="h-5 w-5 text-primary" /> Your Cart
             {items.length > 0 && (
@@ -62,9 +61,9 @@ const CartDrawer = ({ checkoutPath = "/checkout", isWholesale = false }: { check
         </SheetHeader>
 
         {items.length === 0 ? (
-          <div className="flex flex-1 flex-col items-center justify-center gap-3 text-muted-foreground">
-            <ShoppingBag className="h-16 w-16 opacity-30" />
-            <p className="text-lg font-medium">Cart is empty</p>
+          <div className="flex flex-1 flex-col items-center justify-center gap-3 text-muted-foreground px-4">
+            <ShoppingBag className="h-14 w-14 sm:h-16 sm:w-16 opacity-30" />
+            <p className="text-base sm:text-lg font-medium">Cart is empty</p>
             <p className="text-sm">Add items from our catalog!</p>
             <Button variant="outline" className="rounded-xl mt-2" onClick={() => { setOpen(false); navigate("/products"); }}>
               Browse Products
@@ -73,32 +72,33 @@ const CartDrawer = ({ checkoutPath = "/checkout", isWholesale = false }: { check
         ) : (
           <>
             {/* Free delivery progress */}
-            {delivery > 0 && (
-              <div className="rounded-xl bg-muted/50 p-3 space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">
-                    Add <span className="font-semibold text-primary">₹{FREE_DELIVERY_THRESHOLD - sub}</span> more for free delivery
-                  </span>
-                  <Sparkles className="h-3 w-3 text-primary" />
+            <div className="px-4 sm:px-6 pt-3 space-y-2">
+              {delivery > 0 ? (
+                <div className="rounded-xl bg-muted/50 p-3 space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">
+                      Add <span className="font-semibold text-primary">₹{FREE_DELIVERY_THRESHOLD - sub}</span> more for free delivery
+                    </span>
+                    <Sparkles className="h-3 w-3 text-primary" />
+                  </div>
+                  <Progress value={progressToFree} className="h-1.5" />
                 </div>
-                <Progress value={progressToFree} className="h-1.5" />
-              </div>
-            )}
-            {delivery === 0 && (
-              <div className="rounded-xl bg-secondary/10 p-3 text-center text-xs font-medium text-secondary">
-                🎉 You've unlocked free delivery!
-              </div>
-            )}
+              ) : (
+                <div className="rounded-xl bg-secondary/10 p-3 text-center text-xs font-medium text-secondary">
+                  🎉 You've unlocked free delivery!
+                </div>
+              )}
 
-            {/* Stock warning */}
-            {hasStockIssues && (
-              <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-3 flex items-start gap-2">
-                <AlertTriangle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
-                <p className="text-xs text-destructive">Some items exceed available stock. Reduce quantity to proceed.</p>
-              </div>
-            )}
+              {hasStockIssues && (
+                <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-3 flex items-start gap-2">
+                  <AlertTriangle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+                  <p className="text-xs text-destructive">Some items exceed available stock. Reduce quantity to proceed.</p>
+                </div>
+              )}
+            </div>
 
-            <div className="flex-1 space-y-2 overflow-y-auto py-3">
+            {/* Items */}
+            <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-3 space-y-2">
               <AnimatePresence>
                 {items.map((item) => {
                   const stock = getStock(item.id);
@@ -115,33 +115,29 @@ const CartDrawer = ({ checkoutPath = "/checkout", isWholesale = false }: { check
                       className={`flex items-center gap-3 rounded-xl border p-3 ${overStock || overMax ? "border-destructive/40 bg-destructive/5" : "bg-card"}`}
                     >
                       {item.image_url && (
-                        <img src={item.image_url} alt={item.name} className="h-14 w-14 rounded-lg object-cover" loading="lazy" />
+                        <img src={item.image_url} alt={item.name} className="h-14 w-14 rounded-lg object-cover shrink-0" loading="lazy" />
                       )}
                       <div className="flex-1 min-w-0">
                         <p className="truncate text-sm font-medium">{item.name}</p>
                         <p className="text-xs text-muted-foreground">{item.unit}</p>
                         <p className="text-sm font-semibold text-primary">₹{item.price * item.quantity}</p>
-                        {overStock && (
-                          <p className="text-[10px] text-destructive font-medium">Only {stock} available</p>
-                        )}
-                        {!overStock && overMax && (
-                          <p className="text-[10px] text-destructive font-medium">Max {maxQty} per order</p>
-                        )}
+                        {overStock && <p className="text-[10px] text-destructive font-medium">Only {stock} available</p>}
+                        {!overStock && overMax && <p className="text-[10px] text-destructive font-medium">Max {maxQty} per order</p>}
                         {stock !== Infinity && stock > 0 && !overStock && !overMax && stock <= 10 && (
                           <p className="text-[10px] text-muted-foreground font-medium">Only {stock} left</p>
                         )}
                       </div>
                       <div className="flex items-center gap-1">
-                        <Button variant="outline" size="icon" className="h-7 w-7 rounded-lg" onClick={() => updateQuantity(item.id, item.quantity - 1)}>
+                        <Button variant="outline" size="icon" className="h-8 w-8 rounded-lg" onClick={() => updateQuantity(item.id, item.quantity - 1)}>
                           <Minus className="h-3 w-3" />
                         </Button>
                         <span className={`w-6 text-center text-sm font-medium ${overStock || overMax ? "text-destructive" : ""}`}>{item.quantity}</span>
-                        <Button variant="outline" size="icon" className="h-7 w-7 rounded-lg" disabled={item.quantity >= maxQty} onClick={() => updateQuantity(item.id, item.quantity + 1)}>
+                        <Button variant="outline" size="icon" className="h-8 w-8 rounded-lg" disabled={item.quantity >= maxQty} onClick={() => updateQuantity(item.id, item.quantity + 1)}>
                           <Plus className="h-3 w-3" />
                         </Button>
                       </div>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" onClick={() => removeItem(item.id)}>
-                        <Trash2 className="h-3 w-3" />
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive shrink-0" onClick={() => removeItem(item.id)}>
+                        <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     </motion.div>
                   );
@@ -149,7 +145,8 @@ const CartDrawer = ({ checkoutPath = "/checkout", isWholesale = false }: { check
               </AnimatePresence>
             </div>
 
-            <div className="space-y-2 border-t pt-4">
+            {/* Footer totals */}
+            <div className="border-t px-4 sm:px-6 py-4 space-y-2 safe-area-bottom bg-card">
               <div className="flex justify-between text-sm"><span>Subtotal</span><span>₹{sub}</span></div>
               <div className="flex justify-between text-sm">
                 <span>Delivery</span>
@@ -159,7 +156,7 @@ const CartDrawer = ({ checkoutPath = "/checkout", isWholesale = false }: { check
                 <span>Total</span><span className="text-primary">₹{total}</span>
               </div>
               <Button
-                className="w-full rounded-xl shadow-lg shadow-primary/20"
+                className="w-full rounded-xl shadow-lg shadow-primary/20 h-12 text-base"
                 size="lg"
                 disabled={hasStockIssues}
                 onClick={() => { setOpen(false); navigate(checkoutPath); }}

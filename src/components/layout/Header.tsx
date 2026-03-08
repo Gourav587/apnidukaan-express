@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { ShoppingCart, User, Menu, X, Search, LogOut, Heart, UserPen, Package, ChevronDown } from "lucide-react";
+import { ShoppingCart, User, Search, LogOut, Heart, UserPen, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCartStore } from "@/lib/cart-store";
@@ -27,7 +27,6 @@ import { Label } from "@/components/ui/label";
 const Header = () => {
   const totalItems = useCartStore((s) => s.totalItems());
   const toggleCart = useCartStore((s) => s.toggleCart);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [user, setUser] = useState<any>(null);
@@ -51,7 +50,6 @@ const Header = () => {
       .select("name, phone, address, village")
       .eq("user_id", user.id)
       .maybeSingle();
-    
     setProfileData({
       name: data?.name || user.user_metadata?.name || "",
       phone: data?.phone || user.user_metadata?.phone || "",
@@ -69,29 +67,13 @@ const Header = () => {
     e.preventDefault();
     if (!user) return;
     setSaving(true);
-
-    const { data: existing } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("user_id", user.id)
-      .maybeSingle();
-
+    const { data: existing } = await supabase.from("profiles").select("id").eq("user_id", user.id).maybeSingle();
     if (existing) {
-      await supabase
-        .from("profiles")
-        .update({ ...profileData, updated_at: new Date().toISOString() })
-        .eq("user_id", user.id);
+      await supabase.from("profiles").update({ ...profileData, updated_at: new Date().toISOString() }).eq("user_id", user.id);
     } else {
-      await supabase
-        .from("profiles")
-        .insert({ user_id: user.id, ...profileData });
+      await supabase.from("profiles").insert({ user_id: user.id, ...profileData });
     }
-
-    // Also update auth metadata
-    await supabase.auth.updateUser({
-      data: { name: profileData.name, phone: profileData.phone },
-    });
-
+    await supabase.auth.updateUser({ data: { name: profileData.name, phone: profileData.phone } });
     setSaving(false);
     setProfileOpen(false);
     toast.success("Profile updated!");
@@ -118,9 +100,7 @@ const Header = () => {
         <div className="container flex h-14 items-center justify-between gap-2 sm:h-16">
           <Link to="/" className="flex items-center gap-2 shrink-0">
             <span className="text-2xl">🛒</span>
-            <span className="font-heading text-lg font-bold text-primary sm:text-xl">
-              ApniDukaan
-            </span>
+            <span className="font-heading text-lg font-bold text-primary sm:text-xl">ApniDukaan</span>
           </Link>
 
           {/* Desktop Search */}
@@ -148,19 +128,13 @@ const Header = () => {
             </Button>
 
             <Link to="/wishlist" className="hidden md:block">
-              <Button variant="ghost" size="icon">
-                <Heart className="h-5 w-5" />
-              </Button>
+              <Button variant="ghost" size="icon"><Heart className="h-5 w-5" /></Button>
             </Link>
 
             <Button variant="ghost" size="icon" onClick={toggleCart} className="relative hidden md:flex">
               <ShoppingCart className="h-5 w-5" />
               {totalItems > 0 && (
-                <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground"
-                >
+                <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
                   {totalItems}
                 </motion.span>
               )}
@@ -182,35 +156,25 @@ const Header = () => {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleOpenProfile} className="cursor-pointer">
-                    <UserPen className="mr-2 h-4 w-4" />
-                    Edit Profile
+                    <UserPen className="mr-2 h-4 w-4" /> Edit Profile
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate("/orders")} className="cursor-pointer">
-                    <Package className="mr-2 h-4 w-4" />
-                    My Orders
+                    <Package className="mr-2 h-4 w-4" /> My Orders
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate("/wishlist")} className="cursor-pointer">
-                    <Heart className="mr-2 h-4 w-4" />
-                    Wishlist
+                    <Heart className="mr-2 h-4 w-4" /> Wishlist
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive focus:text-destructive">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Logout
+                    <LogOut className="mr-2 h-4 w-4" /> Logout
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
               <Link to="/auth" className="hidden md:block">
-                <Button variant="ghost" size="icon">
-                  <User className="h-5 w-5" />
-                </Button>
+                <Button variant="ghost" size="icon"><User className="h-5 w-5" /></Button>
               </Link>
             )}
-
-            <Button variant="ghost" size="icon" className="md:hidden h-10 w-10" onClick={() => setMenuOpen(!menuOpen)}>
-              {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </Button>
           </div>
         </div>
 
@@ -226,61 +190,17 @@ const Header = () => {
               <form onSubmit={handleSearch} className="container py-2">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    placeholder="Search products..."
-                    className="pl-10 rounded-xl"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    autoFocus
-                  />
+                  <Input placeholder="Search products..." className="pl-10 rounded-xl" value={search} onChange={(e) => setSearch(e.target.value)} autoFocus />
                 </div>
               </form>
             </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Mobile Nav */}
-        <AnimatePresence>
-          {menuOpen && (
-            <motion.nav
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="overflow-hidden border-t md:hidden"
-            >
-              <div className="container flex flex-col gap-1 py-3">
-                {user && (
-                  <div className="px-3 py-2 mb-1 rounded-lg bg-muted/50">
-                    <p className="text-sm font-medium">👋 Hi, {user.user_metadata?.name || user.email?.split("@")[0]}</p>
-                  </div>
-                )}
-                <Link to="/" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent transition-colors">Home</Link>
-                <Link to="/products" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent transition-colors">Products</Link>
-                <Link to="/orders" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent transition-colors">My Orders</Link>
-                <Link to="/wishlist" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent transition-colors">❤️ Wishlist</Link>
-                {user && (
-                  <button onClick={() => { handleOpenProfile(); setMenuOpen(false); }} className="rounded-lg px-3 py-2 text-sm font-medium text-left hover:bg-accent transition-colors">
-                    ✏️ Edit Profile
-                  </button>
-                )}
-                {user ? (
-                  <button onClick={() => { handleLogout(); setMenuOpen(false); }} className="rounded-lg px-3 py-2 text-sm font-medium text-left text-destructive hover:bg-accent transition-colors">
-                    Logout
-                  </button>
-                ) : (
-                  <Link to="/auth" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2 text-sm font-medium text-primary hover:bg-accent transition-colors">
-                    Login / Sign Up
-                  </Link>
-                )}
-              </div>
-            </motion.nav>
           )}
         </AnimatePresence>
       </header>
 
       {/* Profile Edit Dialog */}
       <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <UserPen className="h-5 w-5 text-primary" /> Edit Profile
@@ -290,49 +210,23 @@ const Header = () => {
           <form onSubmit={handleSaveProfile} className="space-y-4 pt-2">
             <div className="space-y-2">
               <Label htmlFor="profile-name">Full Name</Label>
-              <Input
-                id="profile-name"
-                placeholder="Your name"
-                value={profileData.name}
-                onChange={(e) => setProfileData((p) => ({ ...p, name: e.target.value }))}
-                required
-              />
+              <Input id="profile-name" placeholder="Your name" value={profileData.name} onChange={(e) => setProfileData((p) => ({ ...p, name: e.target.value }))} required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="profile-phone">Phone Number</Label>
-              <Input
-                id="profile-phone"
-                placeholder="10 digit number"
-                value={profileData.phone}
-                onChange={(e) => setProfileData((p) => ({ ...p, phone: e.target.value }))}
-                required
-              />
+              <Input id="profile-phone" placeholder="10 digit number" value={profileData.phone} onChange={(e) => setProfileData((p) => ({ ...p, phone: e.target.value }))} required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="profile-address">Address</Label>
-              <Input
-                id="profile-address"
-                placeholder="Your delivery address"
-                value={profileData.address}
-                onChange={(e) => setProfileData((p) => ({ ...p, address: e.target.value }))}
-              />
+              <Input id="profile-address" placeholder="Your delivery address" value={profileData.address} onChange={(e) => setProfileData((p) => ({ ...p, address: e.target.value }))} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="profile-village">Village / Area</Label>
-              <Input
-                id="profile-village"
-                placeholder="e.g. Dinanagar"
-                value={profileData.village}
-                onChange={(e) => setProfileData((p) => ({ ...p, village: e.target.value }))}
-              />
+              <Input id="profile-village" placeholder="e.g. Dinanagar" value={profileData.village} onChange={(e) => setProfileData((p) => ({ ...p, village: e.target.value }))} />
             </div>
             <div className="flex gap-2 pt-2">
-              <Button type="button" variant="outline" className="flex-1" onClick={() => setProfileOpen(false)}>
-                Cancel
-              </Button>
-              <Button type="submit" className="flex-1" disabled={saving}>
-                {saving ? "Saving..." : "Save Profile"}
-              </Button>
+              <Button type="button" variant="outline" className="flex-1" onClick={() => setProfileOpen(false)}>Cancel</Button>
+              <Button type="submit" className="flex-1" disabled={saving}>{saving ? "Saving..." : "Save Profile"}</Button>
             </div>
           </form>
         </DialogContent>
