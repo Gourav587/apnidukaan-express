@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import ProductCard from "@/components/products/ProductCard";
 import ProductSkeleton from "@/components/products/ProductSkeleton";
 import HeroSkeleton from "@/components/home/HeroSkeleton";
+import { RetailInstallPrompt } from "@/components/home/RetailInstallPrompt";
 
 const categories = [
   { name: "Grains", icon: Wheat, emoji: "🌾" },
@@ -52,6 +53,7 @@ const Index = () => {
 
   return (
     <div>
+      <RetailInstallPrompt />
       {/* Announcement Bar */}
       <div className="bg-primary text-primary-foreground text-center py-2 text-xs sm:text-sm font-medium">
         <Sparkles className="inline h-3 w-3 mr-1" />
