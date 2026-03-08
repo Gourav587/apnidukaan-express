@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { useCartStore } from "@/lib/cart-store";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
-import { ArrowLeft, ShoppingBag } from "lucide-react";
+import { ArrowLeft, ShoppingBag, AlertTriangle } from "lucide-react";
 import { motion } from "framer-motion";
 
 const PAYMENT_METHODS = [
@@ -28,8 +29,32 @@ const WholesaleCheckout = () => {
   const [partialAmount, setPartialAmount] = useState("");
   const [notes, setNotes] = useState("");
 
+  // Fetch products to check MOQ
+  const { data: products } = useQuery({
+    queryKey: ["products-moq"],
+    queryFn: async () => {
+      const ids = items.map(i => i.id);
+      if (ids.length === 0) return [];
+      const { data } = await supabase.from("products").select("id, min_wholesale_qty").in("id", ids);
+      return data || [];
+    },
+    enabled: items.length > 0,
+  });
+
   const sub = subtotal();
   const total = sub; // No delivery fee for wholesale
+
+  // Check MOQ violations
+  const moqViolations = items.filter(item => {
+    const product = products?.find((p: any) => p.id === item.id);
+    const minQty = product?.min_wholesale_qty || 1;
+    return item.quantity < minQty;
+  }).map(item => {
+    const product = products?.find((p: any) => p.id === item.id);
+    return { ...item, minQty: product?.min_wholesale_qty || 1 };
+  });
+
+  const hasMoqViolations = moqViolations.length > 0;
 
   if (items.length === 0) {
     return (
@@ -178,13 +203,33 @@ const WholesaleCheckout = () => {
               />
             </motion.div>
 
+            {/* MOQ Violations Warning */}
+            {hasMoqViolations && (
+              <div className="rounded-xl bg-destructive/10 border border-destructive/20 p-4 text-sm text-destructive">
+                <div className="flex items-start gap-2">
+                  <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-medium">Minimum quantity not met:</p>
+                    <ul className="mt-1 space-y-0.5 text-xs">
+                      {moqViolations.map(v => (
+                        <li key={v.id}>• {v.name}: {v.quantity} in cart (min: {v.minQty})</li>
+                      ))}
+                    </ul>
+                    <Button size="sm" variant="outline" className="mt-2 h-7 text-xs rounded-lg" onClick={() => navigate("/wholesale")}>
+                      Go back to adjust quantities
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {belowMinimum && (
               <div className="rounded-xl bg-destructive/10 border border-destructive/20 p-4 text-sm text-destructive">
                 ⚠️ Minimum wholesale order is ₹{MIN_ORDER}. Add ₹{MIN_ORDER - total} more.
               </div>
             )}
 
-            <Button type="submit" size="lg" className="w-full rounded-xl bg-secondary hover:bg-secondary/90" disabled={loading || belowMinimum}>
+            <Button type="submit" size="lg" className="w-full rounded-xl bg-secondary hover:bg-secondary/90" disabled={loading || belowMinimum || hasMoqViolations}>
               {loading ? "Placing Order..." : `Place Wholesale Order – ₹${total}`}
             </Button>
           </form>
