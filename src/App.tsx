@@ -9,6 +9,7 @@ import AIChatbot from "@/components/chatbot/AIChatbot";
 
 const Index = lazy(() => import("./pages/Index"));
 const Products = lazy(() => import("./pages/Products"));
+const ProductDetail = lazy(() => import("./pages/ProductDetail"));
 const Checkout = lazy(() => import("./pages/Checkout"));
 const OrderConfirmation = lazy(() => import("./pages/OrderConfirmation"));
 const Orders = lazy(() => import("./pages/Orders"));
