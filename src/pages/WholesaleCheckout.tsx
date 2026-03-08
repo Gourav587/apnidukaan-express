@@ -273,7 +273,21 @@ const WholesaleCheckout = () => {
               </div>
             )}
 
-            <Button type="submit" size="lg" className="w-full rounded-xl bg-secondary hover:bg-secondary/90" disabled={loading || belowMinimum || hasMoqViolations || hasStockViolations}>
+            {/* Max Qty Violations Warning */}
+            {hasMaxQtyViolations && (
+              <div className="rounded-xl bg-destructive/10 border border-destructive/20 p-4 text-sm text-destructive">
+                <div className="flex items-start gap-2">
+                  <span className="font-semibold">⚠️ Maximum quantity exceeded:</span>
+                </div>
+                <ul className="mt-1 list-disc pl-5">
+                  {maxQtyViolations.map((v: any) => (
+                    <li key={v.id}>{v.name}: max {v.maxQty} allowed (you have {v.quantity})</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <Button type="submit" size="lg" className="w-full rounded-xl bg-secondary hover:bg-secondary/90" disabled={loading || belowMinimum || hasMoqViolations || hasMaxQtyViolations || hasStockViolations}>
               {loading ? "Placing Order..." : `Place Wholesale Order – ₹${total}`}
             </Button>
           </form>
