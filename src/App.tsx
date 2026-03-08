@@ -20,6 +20,7 @@ const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const Wholesale = lazy(() => import("./pages/Wholesale"));
 const WholesaleRegister = lazy(() => import("./pages/WholesaleRegister"));
 const WholesaleCheckout = lazy(() => import("./pages/WholesaleCheckout"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
