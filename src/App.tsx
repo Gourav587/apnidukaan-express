@@ -60,6 +60,7 @@ const App = () => (
               </Route>
               <Route path="/admin/*" element={<Admin />} />
               <Route path="/admin-login" element={<AdminLogin />} />
+              <Route path="/admin-setup" element={<AdminSetup />} />
               <Route path="/wholesale" element={<Wholesale />} />
               <Route path="/wholesale-register" element={<WholesaleRegister />} />
               <Route path="/wholesale-checkout" element={<WholesaleCheckout />} />
