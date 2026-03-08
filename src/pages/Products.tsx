@@ -91,7 +91,6 @@ const Products = () => {
           onChange={handleSearchChange}
           placeholder="Search products... (e.g., atta, oil, sugar)"
         />
-        </div>
         <Select value={sortBy} onValueChange={handleSortChange}>
           <SelectTrigger className="w-[160px] rounded-xl shrink-0">
             <SlidersHorizontal className="h-4 w-4 mr-1" />
