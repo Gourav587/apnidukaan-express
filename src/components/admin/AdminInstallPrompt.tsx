@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Download, X } from "lucide-react";
+import { Download, X, Share, SquarePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface BeforeInstallPromptEvent extends Event {
@@ -7,13 +7,27 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
+function isIOS(): boolean {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+}
+
+function isInStandaloneMode(): boolean {
+  return window.matchMedia("(display-mode: standalone)").matches || (navigator as any).standalone === true;
+}
+
 export function AdminInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [showIOSGuide, setShowIOSGuide] = useState(false);
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    if (localStorage.getItem("admin-pwa-dismissed")) {
+    if (localStorage.getItem("admin-pwa-dismissed") || isInStandaloneMode()) {
       setDismissed(true);
+      return;
+    }
+
+    if (isIOS()) {
+      setShowIOSGuide(true);
       return;
     }
 
@@ -40,7 +54,41 @@ export function AdminInstallPrompt() {
     localStorage.setItem("admin-pwa-dismissed", "true");
   };
 
-  if (!deferredPrompt || dismissed) return null;
+  if (dismissed) return null;
+
+  // iOS Safari guide
+  if (showIOSGuide) {
+    return (
+      <div className="mx-6 mt-4 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3">
+        <div className="flex items-start gap-3">
+          <Download className="h-5 w-5 shrink-0 text-primary mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium">Install ApniDukaan Admin</p>
+            <div className="mt-2 space-y-2">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-[10px] font-bold">1</span>
+                <span>Tap <Share className="inline h-3.5 w-3.5 text-primary mx-0.5 -mt-0.5" /> <strong>Share</strong> in Safari</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-[10px] font-bold">2</span>
+                <span>Tap <SquarePlus className="inline h-3.5 w-3.5 text-primary mx-0.5 -mt-0.5" /> <strong>Add to Home Screen</strong></span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-[10px] font-bold">3</span>
+                <span>Tap <strong>Add</strong> to install</span>
+              </div>
+            </div>
+          </div>
+          <button onClick={handleDismiss} className="text-muted-foreground hover:text-foreground mt-0.5">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Android / Chrome install prompt
+  if (!deferredPrompt) return null;
 
   return (
     <div className="mx-6 mt-4 flex items-center gap-3 rounded-xl border border-primary/20 bg-primary/5 px-4 py-3">
