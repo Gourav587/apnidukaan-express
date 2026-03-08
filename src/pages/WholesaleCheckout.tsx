@@ -25,6 +25,7 @@ const MIN_ORDER = 2000;
 const WholesaleCheckout = () => {
   const { items, subtotal, clearCart } = useCartStore();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [loading, setLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("credit");
   const [partialAmount, setPartialAmount] = useState("");
@@ -32,15 +33,20 @@ const WholesaleCheckout = () => {
   const [showMobileSummary, setShowMobileSummary] = useState(false);
   const [addressForm, setAddressForm] = useState({ name: "", phone: "", address: "", village: "" });
   const [addressErrors, setAddressErrors] = useState<Record<string, string>>({});
+  const [userId, setUserId] = useState<string | null>(null);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [deletingAddressId, setDeletingAddressId] = useState<string | null>(null);
+  const [saveAddress, setSaveAddress] = useState(false);
   const submittingRef = useRef(false);
 
   const VILLAGES = ["Dinanagar", "Awankha", "Taragarh", "Kahnuwan", "Other"];
 
-  // Prefill address from profile
+  // Load user and prefill from profile
   useEffect(() => {
     const loadProfile = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
+      setUserId(user.id);
       const { data: profile } = await supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle();
       if (profile) {
         setAddressForm({
@@ -53,6 +59,49 @@ const WholesaleCheckout = () => {
     };
     loadProfile();
   }, []);
+
+  // Fetch saved addresses
+  const { data: savedAddresses } = useQuery({
+    queryKey: ["saved-addresses", userId],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("saved_addresses").select("*").eq("user_id", userId!).order("is_default", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!userId,
+  });
+
+  // Auto-select default address
+  useEffect(() => {
+    if (savedAddresses && savedAddresses.length > 0 && !selectedAddressId) {
+      const defaultAddr = savedAddresses.find((a: any) => a.is_default) || savedAddresses[0];
+      selectAddress(defaultAddr);
+    }
+  }, [savedAddresses]);
+
+  const selectAddress = (addr: any) => {
+    setSelectedAddressId(addr.id);
+    setAddressForm({ name: addr.name, phone: addr.phone, address: addr.address, village: addr.village });
+    setAddressErrors({});
+  };
+
+  const handleDeleteAddress = async (addrId: string) => {
+    setDeletingAddressId(addrId);
+    try {
+      const { error } = await supabase.from("saved_addresses").delete().eq("id", addrId);
+      if (error) throw error;
+      if (selectedAddressId === addrId) {
+        setSelectedAddressId(null);
+        setAddressForm({ name: "", phone: "", address: "", village: "" });
+      }
+      queryClient.invalidateQueries({ queryKey: ["saved-addresses", userId] });
+      toast.success("Address removed");
+    } catch {
+      toast.error("Failed to delete address");
+    } finally {
+      setDeletingAddressId(null);
+    }
+  };
 
   const { data: products } = useQuery({
     queryKey: ["products-moq-stock"],
