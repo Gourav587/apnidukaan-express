@@ -35,6 +35,7 @@ const paymentBadgeVariant = (method: string) => {
     case "upi": return "default";
     case "card": return "secondary";
     case "online": return "outline";
+    case "credit": return "destructive";
     default: return "secondary";
   }
 };
