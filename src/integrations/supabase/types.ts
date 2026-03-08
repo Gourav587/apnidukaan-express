@@ -531,6 +531,31 @@ export type Database = {
         }
         Returns: boolean
       }
+      insert_ledger_entry: {
+        Args: {
+          _amount: number
+          _description: string
+          _order_id: string
+          _type: string
+          _user_id: string
+        }
+        Returns: {
+          amount: number
+          balance: number
+          created_at: string
+          description: string | null
+          id: string
+          order_id: string | null
+          type: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "ledger"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"

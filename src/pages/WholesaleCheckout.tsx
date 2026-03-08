@@ -116,25 +116,14 @@ const WholesaleCheckout = () => {
         : 0;
 
       if (creditAmount > 0) {
-        const { data: lastEntry } = await supabase
-          .from("ledger")
-          .select("balance")
-          .eq("user_id", user.id)
-          .order("created_at", { ascending: false })
-          .limit(1)
-          .maybeSingle();
-
-        const prevBalance = lastEntry?.balance || 0;
-        const newBalance = prevBalance + creditAmount;
-
-        await supabase.from("ledger").insert({
-          user_id: user.id,
-          order_id: order?.id,
-          type: "debit",
-          amount: creditAmount,
-          balance: newBalance,
-          description: `Order #${order?.id?.slice(0, 8)} – ${paymentMethod === "partial" ? "Partial credit" : "Full credit"}`,
+        const { error: ledgerError } = await supabase.rpc("insert_ledger_entry", {
+          _user_id: user.id,
+          _order_id: order?.id,
+          _type: "debit",
+          _amount: creditAmount,
+          _description: `Order #${order?.id?.slice(0, 8)} – ${paymentMethod === "partial" ? "Partial credit" : "Full credit"}`,
         });
+        if (ledgerError) throw ledgerError;
       }
 
       clearCart();
