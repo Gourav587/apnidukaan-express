@@ -117,7 +117,7 @@ const Header = () => {
       <header className="sticky top-0 z-40 border-b bg-card/80 backdrop-blur-md">
         <div className="container flex h-14 items-center justify-between gap-2 sm:h-16">
           <Link to="/" className="flex items-center gap-2 shrink-0">
-            <span className="text-2xl">🛒</span>
+            <span className="text-2xl">🛍️</span>
             <span className="font-heading text-lg font-bold text-primary sm:text-xl">
               ApniDukaan
             </span>
