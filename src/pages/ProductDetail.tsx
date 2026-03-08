@@ -16,6 +16,8 @@ const ProductDetail = () => {
   const addItem = useCartStore((s) => s.addItem);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
   const itemInCart = useCartStore((s) => s.items.find((i) => i.id === id));
+  const { isInWishlist, toggleWishlist } = useWishlist();
+  const wishlisted = id ? isInWishlist(id) : false;
 
   const { data: product, isLoading } = useQuery({
     queryKey: ["product", id],
