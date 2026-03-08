@@ -160,6 +160,12 @@ const Checkout = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (hasStockViolations) {
+      toast.error("Some items exceed available stock. Please adjust quantities.");
+      return;
+    }
+    
     const result = checkoutSchema.safeParse(form);
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
