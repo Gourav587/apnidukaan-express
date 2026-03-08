@@ -274,37 +274,68 @@ const Wholesale = () => {
                     <p className="text-sm mt-1">Your transaction history will appear here</p>
                   </div>
                 ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead>Description</TableHead>
-                        <TableHead className="text-right">Amount</TableHead>
-                        <TableHead className="text-right">Balance</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
+                  <>
+                    {/* Desktop table */}
+                    <div className="hidden sm:block">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Date</TableHead>
+                            <TableHead>Type</TableHead>
+                            <TableHead>Description</TableHead>
+                            <TableHead className="text-right">Amount</TableHead>
+                            <TableHead className="text-right">Balance</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {ledger.map((entry: any) => (
+                            <TableRow key={entry.id}>
+                              <TableCell className="text-sm">{format(new Date(entry.created_at), "dd MMM yyyy")}</TableCell>
+                              <TableCell>
+                                <Badge variant={entry.type === "payment" ? "secondary" : entry.type === "credit" ? "default" : "destructive"} className="rounded-full gap-1 text-xs">
+                                  {entry.type === "credit" && <TrendingUp className="h-3 w-3" />}
+                                  {entry.type === "debit" && <TrendingDown className="h-3 w-3" />}
+                                  {entry.type === "payment" && <CreditCard className="h-3 w-3" />}
+                                  {entry.type}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-sm">{entry.description || "—"}</TableCell>
+                              <TableCell className={`text-right font-medium ${entry.type === "payment" ? "text-secondary" : entry.type === "debit" ? "text-destructive" : ""}`}>
+                                {entry.type === "payment" ? "-" : "+"}₹{Math.abs(entry.amount)}
+                              </TableCell>
+                              <TableCell className="text-right font-semibold">₹{entry.balance}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                    {/* Mobile card list */}
+                    <div className="sm:hidden divide-y">
                       {ledger.map((entry: any) => (
-                        <TableRow key={entry.id}>
-                          <TableCell className="text-sm">{format(new Date(entry.created_at), "dd MMM yyyy")}</TableCell>
-                          <TableCell>
-                            <Badge variant={entry.type === "payment" ? "secondary" : entry.type === "credit" ? "default" : "destructive"} className="rounded-full gap-1 text-xs">
-                              {entry.type === "credit" && <TrendingUp className="h-3 w-3" />}
-                              {entry.type === "debit" && <TrendingDown className="h-3 w-3" />}
-                              {entry.type === "payment" && <CreditCard className="h-3 w-3" />}
-                              {entry.type}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-sm">{entry.description || "—"}</TableCell>
-                          <TableCell className={`text-right font-medium ${entry.type === "payment" ? "text-secondary" : entry.type === "debit" ? "text-destructive" : ""}`}>
-                            {entry.type === "payment" ? "-" : "+"}₹{Math.abs(entry.amount)}
-                          </TableCell>
-                          <TableCell className="text-right font-semibold">₹{entry.balance}</TableCell>
-                        </TableRow>
+                        <div key={entry.id} className="p-3 flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
+                              entry.type === "payment" ? "bg-secondary/10 text-secondary" : entry.type === "debit" ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"
+                            }`}>
+                              {entry.type === "credit" && <TrendingUp className="h-4 w-4" />}
+                              {entry.type === "debit" && <TrendingDown className="h-4 w-4" />}
+                              {entry.type === "payment" && <CreditCard className="h-4 w-4" />}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium capitalize">{entry.type}</p>
+                              <p className="text-[10px] text-muted-foreground truncate">{entry.description || format(new Date(entry.created_at), "dd MMM yyyy")}</p>
+                            </div>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <p className={`text-sm font-semibold ${entry.type === "payment" ? "text-secondary" : entry.type === "debit" ? "text-destructive" : ""}`}>
+                              {entry.type === "payment" ? "-" : "+"}₹{Math.abs(entry.amount)}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground">Bal: ₹{entry.balance}</p>
+                          </div>
+                        </div>
                       ))}
-                    </TableBody>
-                  </Table>
+                    </div>
+                  </>
                 )}
               </div>
             </div>
