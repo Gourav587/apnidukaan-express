@@ -141,11 +141,14 @@ const Wholesale = () => {
         <div className="container flex h-14 items-center justify-between">
           <div className="flex items-center gap-2">
             <Store className="h-5 w-5 text-secondary" />
-            <span className="font-heading text-lg font-bold text-secondary">Wholesale Portal</span>
+            <span className="font-heading text-base sm:text-lg font-bold text-secondary">Wholesale</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" className="h-8 text-xs gap-1" onClick={() => setProfileOpen(true)}>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <Button variant="ghost" size="sm" className="h-8 text-xs gap-1 hidden sm:flex" onClick={() => setProfileOpen(true)}>
               <User className="h-3.5 w-3.5" /> Profile
+            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8 sm:hidden" onClick={() => setProfileOpen(true)}>
+              <User className="h-4 w-4" />
             </Button>
             <WholesaleCartButton />
             <CartDrawer checkoutPath="/wholesale-checkout" isWholesale />
@@ -156,39 +159,41 @@ const Wholesale = () => {
         </div>
       </header>
 
-      <div className="container py-5 md:py-8">
-        {/* Stats Row */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mb-5 grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="rounded-xl border bg-card p-4">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Balance</p>
-            <p className={`font-heading text-xl font-bold mt-1 ${currentBalance > 0 ? "text-destructive" : "text-secondary"}`}>
-              ₹{Math.abs(currentBalance).toLocaleString()}
-            </p>
-            <p className="text-[10px] text-muted-foreground">{currentBalance > 0 ? "Due" : currentBalance < 0 ? "Credit" : "Clear"}</p>
-          </div>
-          <div className="rounded-xl border bg-card p-4">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Total Spent</p>
-            <p className="font-heading text-xl font-bold mt-1 text-secondary">₹{totalSpent.toLocaleString()}</p>
-            <p className="text-[10px] text-muted-foreground">{orders?.length || 0} orders</p>
-          </div>
-          <div className="rounded-xl border bg-card p-4">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">This Month</p>
-            <p className="font-heading text-xl font-bold mt-1">{thisMonthOrders}</p>
-            <p className="text-[10px] text-muted-foreground">orders placed</p>
-          </div>
-          <div className="rounded-xl border bg-card p-4">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Shop</p>
-            <p className="font-heading text-sm font-bold mt-1 truncate">{(profile as any)?.shop_name || "—"}</p>
-            <p className="text-[10px] text-muted-foreground truncate">{profile?.village || "—"}</p>
+      <div className="container py-4 sm:py-5 md:py-8">
+        {/* Stats Row — horizontal scroll on mobile */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mb-4 sm:mb-5">
+          <div className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-1 sm:grid sm:grid-cols-4 sm:gap-3 sm:overflow-visible">
+            <div className="min-w-[130px] sm:min-w-0 rounded-xl border bg-card p-3 sm:p-4">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Balance</p>
+              <p className={`font-heading text-lg sm:text-xl font-bold mt-0.5 sm:mt-1 ${currentBalance > 0 ? "text-destructive" : "text-secondary"}`}>
+                ₹{Math.abs(currentBalance).toLocaleString()}
+              </p>
+              <p className="text-[10px] text-muted-foreground">{currentBalance > 0 ? "Due" : currentBalance < 0 ? "Credit" : "Clear"}</p>
+            </div>
+            <div className="min-w-[130px] sm:min-w-0 rounded-xl border bg-card p-3 sm:p-4">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Total Spent</p>
+              <p className="font-heading text-lg sm:text-xl font-bold mt-0.5 sm:mt-1 text-secondary">₹{totalSpent.toLocaleString()}</p>
+              <p className="text-[10px] text-muted-foreground">{orders?.length || 0} orders</p>
+            </div>
+            <div className="min-w-[130px] sm:min-w-0 rounded-xl border bg-card p-3 sm:p-4">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">This Month</p>
+              <p className="font-heading text-lg sm:text-xl font-bold mt-0.5 sm:mt-1">{thisMonthOrders}</p>
+              <p className="text-[10px] text-muted-foreground">orders placed</p>
+            </div>
+            <div className="min-w-[130px] sm:min-w-0 rounded-xl border bg-card p-3 sm:p-4">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Shop</p>
+              <p className="font-heading text-xs sm:text-sm font-bold mt-0.5 sm:mt-1 truncate">{(profile as any)?.shop_name || "—"}</p>
+              <p className="text-[10px] text-muted-foreground truncate">{profile?.village || "—"}</p>
+            </div>
           </div>
         </motion.div>
 
         <Tabs defaultValue="products">
-          <TabsList className="mb-4">
-            <TabsTrigger value="products" className="gap-1"><Package className="h-3.5 w-3.5" /> Products</TabsTrigger>
-            <TabsTrigger value="orders" className="gap-1"><ShoppingBag className="h-3.5 w-3.5" /> Orders</TabsTrigger>
-            <TabsTrigger value="ledger" className="gap-1"><BookOpen className="h-3.5 w-3.5" /> Khata</TabsTrigger>
-            <TabsTrigger value="analytics" className="gap-1"><BarChart3 className="h-3.5 w-3.5" /> Analytics</TabsTrigger>
+          <TabsList className="mb-3 sm:mb-4 w-full sm:w-auto overflow-x-auto scrollbar-hide">
+            <TabsTrigger value="products" className="gap-1 text-xs sm:text-sm"><Package className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Products</span><span className="sm:hidden">Shop</span></TabsTrigger>
+            <TabsTrigger value="orders" className="gap-1 text-xs sm:text-sm"><ShoppingBag className="h-3.5 w-3.5" /> Orders</TabsTrigger>
+            <TabsTrigger value="ledger" className="gap-1 text-xs sm:text-sm"><BookOpen className="h-3.5 w-3.5" /> Khata</TabsTrigger>
+            <TabsTrigger value="analytics" className="gap-1 text-xs sm:text-sm"><BarChart3 className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Analytics</span><span className="sm:hidden">Stats</span></TabsTrigger>
           </TabsList>
 
           {/* Products Tab */}
