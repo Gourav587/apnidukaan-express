@@ -58,7 +58,7 @@ const Checkout = () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
 
-      const { data, error } = await supabase.from("orders").insert({
+      const orderPayload = {
         user_id: user?.id || null,
         items: items.map((i) => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity, unit: i.unit })),
         total,
@@ -69,16 +69,25 @@ const Checkout = () => {
         phone: form.phone,
         customer_name: form.name,
         customer_type: "retail",
-      }).select("id").maybeSingle();
+      };
 
-      if (error) throw error;
+      let orderId = crypto.randomUUID();
+
+      if (user) {
+        const { data, error } = await supabase.from("orders").insert(orderPayload).select("id").maybeSingle();
+        if (error) throw error;
+        orderId = data?.id || orderId;
+      } else {
+        const { error } = await supabase.from("orders").insert(orderPayload);
+        if (error) throw error;
+      }
 
       clearCart();
       toast.success("Order placed successfully! 🎉");
       navigate("/order-confirmation", {
         state: {
           order: {
-            id: data?.id || "N/A",
+            id: orderId,
             customer_name: form.name,
             phone: form.phone,
             address: form.address,
