@@ -14,7 +14,9 @@ interface ProductCardProps {
   stock: number;
 }
 
-const ProductCard = ({ id, name, price, unit, image_url, stock }: ProductCardProps) => {
+import { forwardRef } from "react";
+
+const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(({ id, name, price, unit, image_url, stock }, ref) => {
   const addItem = useCartStore((s) => s.addItem);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
   const itemInCart = useCartStore((s) => s.items.find((i) => i.id === id));
@@ -23,6 +25,7 @@ const ProductCard = ({ id, name, price, unit, image_url, stock }: ProductCardPro
 
   return (
     <motion.div
+      ref={ref}
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       className="group relative flex flex-col overflow-hidden rounded-2xl border bg-card transition-all hover:shadow-lg hover:-translate-y-0.5"
@@ -99,6 +102,8 @@ const ProductCard = ({ id, name, price, unit, image_url, stock }: ProductCardPro
       </div>
     </motion.div>
   );
-};
+});
+
+ProductCard.displayName = "ProductCard";
 
 export default ProductCard;

@@ -1,7 +1,8 @@
+import { forwardRef } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const ProductSkeleton = () => (
-  <div className="flex flex-col overflow-hidden rounded-xl border bg-card">
+const ProductSkeleton = forwardRef<HTMLDivElement>((_, ref) => (
+  <div ref={ref} className="flex flex-col overflow-hidden rounded-xl border bg-card">
     <Skeleton className="aspect-square w-full" />
     <div className="p-3 space-y-2">
       <Skeleton className="h-4 w-3/4" />
@@ -12,6 +13,8 @@ const ProductSkeleton = () => (
       </div>
     </div>
   </div>
-);
+));
+
+ProductSkeleton.displayName = "ProductSkeleton";
 
 export default ProductSkeleton;

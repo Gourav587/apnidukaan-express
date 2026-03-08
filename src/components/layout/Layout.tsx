@@ -4,6 +4,7 @@ import Footer from "./Footer";
 import WhatsAppButton from "./WhatsAppButton";
 import CartDrawer from "@/components/cart/CartDrawer";
 import NotificationPrompt from "@/components/notifications/NotificationPrompt";
+import AIChatbot from "@/components/chatbot/AIChatbot";
 
 const Layout = () => (
   <div className="flex min-h-screen flex-col">
@@ -15,6 +16,7 @@ const Layout = () => (
     <CartDrawer />
     <WhatsAppButton />
     <NotificationPrompt />
+    <AIChatbot />
   </div>
 );
 
