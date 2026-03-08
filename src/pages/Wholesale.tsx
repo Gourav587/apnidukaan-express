@@ -141,11 +141,14 @@ const Wholesale = () => {
         <div className="container flex h-14 items-center justify-between">
           <div className="flex items-center gap-2">
             <Store className="h-5 w-5 text-secondary" />
-            <span className="font-heading text-lg font-bold text-secondary">Wholesale Portal</span>
+            <span className="font-heading text-base sm:text-lg font-bold text-secondary">Wholesale</span>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" className="h-8 text-xs gap-1" onClick={() => setProfileOpen(true)}>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <Button variant="ghost" size="sm" className="h-8 text-xs gap-1 hidden sm:flex" onClick={() => setProfileOpen(true)}>
               <User className="h-3.5 w-3.5" /> Profile
+            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8 sm:hidden" onClick={() => setProfileOpen(true)}>
+              <User className="h-4 w-4" />
             </Button>
             <WholesaleCartButton />
             <CartDrawer checkoutPath="/wholesale-checkout" isWholesale />
@@ -156,39 +159,41 @@ const Wholesale = () => {
         </div>
       </header>
 
-      <div className="container py-5 md:py-8">
-        {/* Stats Row */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mb-5 grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="rounded-xl border bg-card p-4">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Balance</p>
-            <p className={`font-heading text-xl font-bold mt-1 ${currentBalance > 0 ? "text-destructive" : "text-secondary"}`}>
-              ₹{Math.abs(currentBalance).toLocaleString()}
-            </p>
-            <p className="text-[10px] text-muted-foreground">{currentBalance > 0 ? "Due" : currentBalance < 0 ? "Credit" : "Clear"}</p>
-          </div>
-          <div className="rounded-xl border bg-card p-4">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Total Spent</p>
-            <p className="font-heading text-xl font-bold mt-1 text-secondary">₹{totalSpent.toLocaleString()}</p>
-            <p className="text-[10px] text-muted-foreground">{orders?.length || 0} orders</p>
-          </div>
-          <div className="rounded-xl border bg-card p-4">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">This Month</p>
-            <p className="font-heading text-xl font-bold mt-1">{thisMonthOrders}</p>
-            <p className="text-[10px] text-muted-foreground">orders placed</p>
-          </div>
-          <div className="rounded-xl border bg-card p-4">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Shop</p>
-            <p className="font-heading text-sm font-bold mt-1 truncate">{(profile as any)?.shop_name || "—"}</p>
-            <p className="text-[10px] text-muted-foreground truncate">{profile?.village || "—"}</p>
+      <div className="container py-4 sm:py-5 md:py-8">
+        {/* Stats Row — horizontal scroll on mobile */}
+        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mb-4 sm:mb-5">
+          <div className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-1 sm:grid sm:grid-cols-4 sm:gap-3 sm:overflow-visible">
+            <div className="min-w-[130px] sm:min-w-0 rounded-xl border bg-card p-3 sm:p-4">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Balance</p>
+              <p className={`font-heading text-lg sm:text-xl font-bold mt-0.5 sm:mt-1 ${currentBalance > 0 ? "text-destructive" : "text-secondary"}`}>
+                ₹{Math.abs(currentBalance).toLocaleString()}
+              </p>
+              <p className="text-[10px] text-muted-foreground">{currentBalance > 0 ? "Due" : currentBalance < 0 ? "Credit" : "Clear"}</p>
+            </div>
+            <div className="min-w-[130px] sm:min-w-0 rounded-xl border bg-card p-3 sm:p-4">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Total Spent</p>
+              <p className="font-heading text-lg sm:text-xl font-bold mt-0.5 sm:mt-1 text-secondary">₹{totalSpent.toLocaleString()}</p>
+              <p className="text-[10px] text-muted-foreground">{orders?.length || 0} orders</p>
+            </div>
+            <div className="min-w-[130px] sm:min-w-0 rounded-xl border bg-card p-3 sm:p-4">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">This Month</p>
+              <p className="font-heading text-lg sm:text-xl font-bold mt-0.5 sm:mt-1">{thisMonthOrders}</p>
+              <p className="text-[10px] text-muted-foreground">orders placed</p>
+            </div>
+            <div className="min-w-[130px] sm:min-w-0 rounded-xl border bg-card p-3 sm:p-4">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Shop</p>
+              <p className="font-heading text-xs sm:text-sm font-bold mt-0.5 sm:mt-1 truncate">{(profile as any)?.shop_name || "—"}</p>
+              <p className="text-[10px] text-muted-foreground truncate">{profile?.village || "—"}</p>
+            </div>
           </div>
         </motion.div>
 
         <Tabs defaultValue="products">
-          <TabsList className="mb-4">
-            <TabsTrigger value="products" className="gap-1"><Package className="h-3.5 w-3.5" /> Products</TabsTrigger>
-            <TabsTrigger value="orders" className="gap-1"><ShoppingBag className="h-3.5 w-3.5" /> Orders</TabsTrigger>
-            <TabsTrigger value="ledger" className="gap-1"><BookOpen className="h-3.5 w-3.5" /> Khata</TabsTrigger>
-            <TabsTrigger value="analytics" className="gap-1"><BarChart3 className="h-3.5 w-3.5" /> Analytics</TabsTrigger>
+          <TabsList className="mb-3 sm:mb-4 w-full sm:w-auto overflow-x-auto scrollbar-hide">
+            <TabsTrigger value="products" className="gap-1 text-xs sm:text-sm"><Package className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Products</span><span className="sm:hidden">Shop</span></TabsTrigger>
+            <TabsTrigger value="orders" className="gap-1 text-xs sm:text-sm"><ShoppingBag className="h-3.5 w-3.5" /> Orders</TabsTrigger>
+            <TabsTrigger value="ledger" className="gap-1 text-xs sm:text-sm"><BookOpen className="h-3.5 w-3.5" /> Khata</TabsTrigger>
+            <TabsTrigger value="analytics" className="gap-1 text-xs sm:text-sm"><BarChart3 className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Analytics</span><span className="sm:hidden">Stats</span></TabsTrigger>
           </TabsList>
 
           {/* Products Tab */}
@@ -269,37 +274,68 @@ const Wholesale = () => {
                     <p className="text-sm mt-1">Your transaction history will appear here</p>
                   </div>
                 ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead>Description</TableHead>
-                        <TableHead className="text-right">Amount</TableHead>
-                        <TableHead className="text-right">Balance</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
+                  <>
+                    {/* Desktop table */}
+                    <div className="hidden sm:block">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Date</TableHead>
+                            <TableHead>Type</TableHead>
+                            <TableHead>Description</TableHead>
+                            <TableHead className="text-right">Amount</TableHead>
+                            <TableHead className="text-right">Balance</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {ledger.map((entry: any) => (
+                            <TableRow key={entry.id}>
+                              <TableCell className="text-sm">{format(new Date(entry.created_at), "dd MMM yyyy")}</TableCell>
+                              <TableCell>
+                                <Badge variant={entry.type === "payment" ? "secondary" : entry.type === "credit" ? "default" : "destructive"} className="rounded-full gap-1 text-xs">
+                                  {entry.type === "credit" && <TrendingUp className="h-3 w-3" />}
+                                  {entry.type === "debit" && <TrendingDown className="h-3 w-3" />}
+                                  {entry.type === "payment" && <CreditCard className="h-3 w-3" />}
+                                  {entry.type}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-sm">{entry.description || "—"}</TableCell>
+                              <TableCell className={`text-right font-medium ${entry.type === "payment" ? "text-secondary" : entry.type === "debit" ? "text-destructive" : ""}`}>
+                                {entry.type === "payment" ? "-" : "+"}₹{Math.abs(entry.amount)}
+                              </TableCell>
+                              <TableCell className="text-right font-semibold">₹{entry.balance}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                    {/* Mobile card list */}
+                    <div className="sm:hidden divide-y">
                       {ledger.map((entry: any) => (
-                        <TableRow key={entry.id}>
-                          <TableCell className="text-sm">{format(new Date(entry.created_at), "dd MMM yyyy")}</TableCell>
-                          <TableCell>
-                            <Badge variant={entry.type === "payment" ? "secondary" : entry.type === "credit" ? "default" : "destructive"} className="rounded-full gap-1 text-xs">
-                              {entry.type === "credit" && <TrendingUp className="h-3 w-3" />}
-                              {entry.type === "debit" && <TrendingDown className="h-3 w-3" />}
-                              {entry.type === "payment" && <CreditCard className="h-3 w-3" />}
-                              {entry.type}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-sm">{entry.description || "—"}</TableCell>
-                          <TableCell className={`text-right font-medium ${entry.type === "payment" ? "text-secondary" : entry.type === "debit" ? "text-destructive" : ""}`}>
-                            {entry.type === "payment" ? "-" : "+"}₹{Math.abs(entry.amount)}
-                          </TableCell>
-                          <TableCell className="text-right font-semibold">₹{entry.balance}</TableCell>
-                        </TableRow>
+                        <div key={entry.id} className="p-3 flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
+                              entry.type === "payment" ? "bg-secondary/10 text-secondary" : entry.type === "debit" ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"
+                            }`}>
+                              {entry.type === "credit" && <TrendingUp className="h-4 w-4" />}
+                              {entry.type === "debit" && <TrendingDown className="h-4 w-4" />}
+                              {entry.type === "payment" && <CreditCard className="h-4 w-4" />}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium capitalize">{entry.type}</p>
+                              <p className="text-[10px] text-muted-foreground truncate">{entry.description || format(new Date(entry.created_at), "dd MMM yyyy")}</p>
+                            </div>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <p className={`text-sm font-semibold ${entry.type === "payment" ? "text-secondary" : entry.type === "debit" ? "text-destructive" : ""}`}>
+                              {entry.type === "payment" ? "-" : "+"}₹{Math.abs(entry.amount)}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground">Bal: ₹{entry.balance}</p>
+                          </div>
+                        </div>
                       ))}
-                    </TableBody>
-                  </Table>
+                    </div>
+                  </>
                 )}
               </div>
             </div>
@@ -358,16 +394,16 @@ const Wholesale = () => {
 
       {/* Profile Edit Dialog */}
       <Dialog open={profileOpen} onOpenChange={setProfileOpen}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md">
           <DialogHeader><DialogTitle>Edit Shop Profile</DialogTitle></DialogHeader>
           <form onSubmit={(e) => { e.preventDefault(); updateProfile.mutate(profileForm); }} className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div><Label className="text-xs">Owner Name</Label><Input className="rounded-xl mt-1" value={profileForm.name} onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })} /></div>
               <div><Label className="text-xs">Phone</Label><Input className="rounded-xl mt-1" value={profileForm.phone} onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })} /></div>
             </div>
             <div><Label className="text-xs">Shop Name</Label><Input className="rounded-xl mt-1" value={profileForm.shop_name} onChange={(e) => setProfileForm({ ...profileForm, shop_name: e.target.value })} /></div>
             <div><Label className="text-xs">GST Number</Label><Input className="rounded-xl mt-1" value={profileForm.gst_number} onChange={(e) => setProfileForm({ ...profileForm, gst_number: e.target.value })} /></div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div><Label className="text-xs">Village/Town</Label><Input className="rounded-xl mt-1" value={profileForm.village} onChange={(e) => setProfileForm({ ...profileForm, village: e.target.value })} /></div>
               <div><Label className="text-xs">Address</Label><Input className="rounded-xl mt-1" value={profileForm.address} onChange={(e) => setProfileForm({ ...profileForm, address: e.target.value })} /></div>
             </div>
@@ -558,9 +594,9 @@ const WholesaleProductRow = ({ product }: { product: any }) => {
 
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-      className={`flex gap-3 rounded-xl border bg-card p-3 hover:shadow-sm transition-shadow ${belowMin ? "border-destructive/50" : ""} ${isOutOfStock ? "opacity-60" : ""}`}>
+      className={`flex gap-2.5 sm:gap-3 rounded-xl border bg-card p-2.5 sm:p-3 hover:shadow-sm transition-shadow ${belowMin ? "border-destructive/50" : ""} ${isOutOfStock ? "opacity-60" : ""}`}>
       {/* Image */}
-      <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-muted">
+      <div className="relative h-16 w-16 sm:h-20 sm:w-20 shrink-0 overflow-hidden rounded-lg bg-muted">
         {product.image_url ? (
           <img src={product.image_url} alt={product.name} className="h-full w-full object-cover" loading="lazy" />
         ) : (
@@ -618,29 +654,29 @@ const WholesaleProductRow = ({ product }: { product: any }) => {
 
         {/* Bulk buttons & qty */}
         {!isOutOfStock && (
-          <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+          <div className="flex items-center gap-1 sm:gap-1.5 mt-1.5 sm:mt-2 flex-wrap">
             {itemInCart ? (
-              <div className="flex items-center gap-1 rounded-lg border bg-muted/50 px-1">
-                <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => removeItem(product.id)}>
+              <div className="flex items-center gap-0.5 sm:gap-1 rounded-lg border bg-muted/50 px-1">
+                <Button size="icon" variant="ghost" className="h-7 w-7 sm:h-6 sm:w-6" onClick={() => removeItem(product.id)}>
                   <Minus className="h-3 w-3" />
                 </Button>
-                <span className={`text-sm font-semibold w-8 text-center ${belowMin ? "text-destructive" : ""}`}>{itemInCart.quantity}</span>
-                <Button size="icon" variant="ghost" className="h-6 w-6" disabled={atMaxStock} onClick={handleAddOne}>
+                <span className={`text-sm font-semibold w-7 sm:w-8 text-center ${belowMin ? "text-destructive" : ""}`}>{itemInCart.quantity}</span>
+                <Button size="icon" variant="ghost" className="h-7 w-7 sm:h-6 sm:w-6" disabled={atMaxStock} onClick={handleAddOne}>
                   <Plus className="h-3 w-3" />
                 </Button>
               </div>
             ) : minQty > 1 ? (
-              <Button size="sm" className="h-7 text-xs rounded-lg bg-secondary hover:bg-secondary/90"
+              <Button size="sm" className="h-8 sm:h-7 text-xs rounded-lg bg-secondary hover:bg-secondary/90"
                 onClick={addMinQty}>
                 + Add {Math.min(minQty, stock)}
               </Button>
             ) : (
-              <Button size="sm" className="h-7 text-xs rounded-lg bg-secondary hover:bg-secondary/90"
+              <Button size="sm" className="h-8 sm:h-7 text-xs rounded-lg bg-secondary hover:bg-secondary/90"
                 onClick={handleAddOne}>
                 + Add
               </Button>
             )}
-            {BULK_PRESETS.filter(q => q >= minQty && q <= stock).map((qty) => (
+            {BULK_PRESETS.filter(q => q >= minQty && q <= stock).slice(0, 3).map((qty) => (
               <Button key={qty} size="sm" variant="outline" className="h-7 text-[10px] rounded-lg px-2"
                 disabled={remainingStock < qty}
                 onClick={() => addMultiple(qty)}>
