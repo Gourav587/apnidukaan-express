@@ -9,18 +9,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Receipt, Plus, Trash2, Eye, Download, Search, IndianRupee, ShoppingBag, Pencil, CreditCard, Smartphone, Banknote, Wallet } from "lucide-react";
+import { Receipt, Plus, Trash2, Eye, Download, Search, IndianRupee, ShoppingBag, Pencil, CreditCard, Smartphone, Banknote, Wallet, Printer, MessageCircle } from "lucide-react";
 import { format } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
-
-interface BillItem {
-  name: string;
-  price: number;
-  quantity: number;
-  unit: string;
-}
-
-type PaymentMethod = "cash" | "upi" | "card" | "online" | "credit";
+import { DateRangeFilter, filterByDateRange } from "./DateRangeFilter";
+import { printThermalReceipt, shareOnWhatsApp } from "./pos-utils";
+import type { BillItem, PaymentMethod } from "./types";
 
 const PAYMENT_METHODS: { value: PaymentMethod; label: string; icon: React.ReactNode }[] = [
   { value: "cash", label: "Cash", icon: <Banknote className="h-4 w-4" /> },
@@ -198,14 +192,22 @@ function ItemsDetailDialog({ order }: { order: any }) {
             <span>Total</span><span>₹{order.total}</span>
           </div>
         </div>
-        <div className="flex justify-between items-center pt-1">
+        <div className="flex flex-wrap justify-between items-center gap-2 pt-1">
           <Badge variant={paymentBadgeVariant(order.payment_method)} className="rounded-full capitalize gap-1">
             {PAYMENT_METHODS.find(m => m.value === order.payment_method)?.icon}
             {order.payment_method || "cash"}
           </Badge>
-          <Button onClick={() => downloadInvoice(order)} className="gap-2 rounded-xl">
-            <Download className="h-4 w-4" /> Download Invoice
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => shareOnWhatsApp(order)} className="gap-2 rounded-xl text-xs h-9">
+              <MessageCircle className="h-3.5 w-3.5" /> WhatsApp
+            </Button>
+            <Button variant="outline" onClick={() => printThermalReceipt(order)} className="gap-2 rounded-xl text-xs h-9">
+              <Printer className="h-3.5 w-3.5" /> Receipt
+            </Button>
+            <Button onClick={() => downloadInvoice(order)} className="gap-2 rounded-xl text-xs h-9">
+              <Download className="h-3.5 w-3.5" /> Invoice
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
@@ -238,7 +240,6 @@ function BillDialog({
   const [loading, setLoading] = useState(false);
   const [selectedKhataCustomer, setSelectedKhataCustomer] = useState("");
 
-  // Fetch khata customers for credit payment
   const { data: khataCustomers } = useQuery({
     queryKey: ["khata-customers"],
     queryFn: async () => {
@@ -259,7 +260,6 @@ function BillDialog({
     setQuantity(1);
   };
 
-  // Auto-fill customer info when khata customer selected
   const handleKhataSelect = (customerId: string) => {
     setSelectedKhataCustomer(customerId);
     const kc = (khataCustomers || []).find((c: any) => c.id === customerId);
@@ -321,6 +321,16 @@ function BillDialog({
         const { data: inserted, error } = await supabase.from("orders").insert(payload).select("id").single();
         if (error) throw error;
         orderId = inserted.id;
+
+        // Auto-deduct stock for each item
+        for (const item of billItems) {
+          const product = products.find((p) => p.name === item.name);
+          if (product) {
+            const newStock = Math.max(0, product.stock - item.quantity);
+            await supabase.from("products").update({ stock: newStock }).eq("id", product.id);
+          }
+        }
+
         toast.success("Bill created successfully!");
       }
 
@@ -359,7 +369,6 @@ function BillDialog({
           <DialogTitle className="font-heading">{editOrder ? "Edit POS Bill" : "Create POS Bill"}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          {/* Customer Info */}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label className="text-xs">Customer Name</Label>
@@ -371,25 +380,17 @@ function BillDialog({
             </div>
           </div>
 
-          {/* Payment Method */}
           <div>
             <Label className="text-xs font-semibold">Payment Method</Label>
             <div className="grid grid-cols-5 gap-2 mt-1">
               {PAYMENT_METHODS.map((m) => (
-                <Button
-                  key={m.value}
-                  type="button"
-                  variant={paymentMethod === m.value ? "default" : "outline"}
-                  className="gap-1.5 rounded-xl text-xs h-9"
-                  onClick={() => setPaymentMethod(m.value)}
-                >
+                <Button key={m.value} type="button" variant={paymentMethod === m.value ? "default" : "outline"} className="gap-1.5 rounded-xl text-xs h-9" onClick={() => setPaymentMethod(m.value)}>
                   {m.icon} {m.label}
                 </Button>
               ))}
             </div>
           </div>
 
-          {/* Khata Customer Selection */}
           {paymentMethod === "credit" && (
             <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-3 space-y-2">
               <Label className="text-xs font-semibold text-destructive">Select Khata Customer *</Label>
@@ -407,7 +408,6 @@ function BillDialog({
             </div>
           )}
 
-          {/* Add Product */}
           <div className="rounded-xl border p-3 space-y-3">
             <Label className="text-xs font-semibold">Add Product</Label>
             <div className="flex gap-2">
@@ -415,7 +415,7 @@ function BillDialog({
                 <SelectTrigger className="flex-1 rounded-xl"><SelectValue placeholder="Select product" /></SelectTrigger>
                 <SelectContent>
                   {products.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>{p.name} — ₹{p.price}</SelectItem>
+                    <SelectItem key={p.id} value={p.id}>{p.name} — ₹{p.price} (Stock: {p.stock})</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -424,7 +424,6 @@ function BillDialog({
             </div>
           </div>
 
-          {/* Items List */}
           {billItems.length > 0 && (
             <div className="rounded-xl border overflow-hidden">
               <Table>
@@ -456,7 +455,6 @@ function BillDialog({
             </div>
           )}
 
-          {/* Discount & Tax */}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label className="text-xs">Discount (%)</Label>
@@ -468,7 +466,6 @@ function BillDialog({
             </div>
           </div>
 
-          {/* Totals & Submit */}
           <div className="space-y-1 text-sm border-t pt-3">
             <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>₹{subtotal.toFixed(2)}</span></div>
             {discountAmt > 0 && <div className="flex justify-between text-destructive"><span>Discount ({discountPercent}%)</span><span>-₹{discountAmt.toFixed(2)}</span></div>}
@@ -538,6 +535,8 @@ function DailySummary({ orders }: { orders: any[] }) {
 export function AdminPOS() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
+  const [dateFrom, setDateFrom] = useState<Date | undefined>();
+  const [dateTo, setDateTo] = useState<Date | undefined>();
 
   const { data: orders } = useQuery({
     queryKey: ["admin-orders"],
@@ -555,7 +554,10 @@ export function AdminPOS() {
     },
   });
 
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
+    queryClient.invalidateQueries({ queryKey: ["admin-products"] });
+  };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this bill permanently?")) return;
@@ -565,7 +567,9 @@ export function AdminPOS() {
     invalidate();
   };
 
-  const posOrders = (orders || []).filter((o: any) => !o.user_id).filter((o: any) => {
+  let posOrders = (orders || []).filter((o: any) => !o.user_id);
+  posOrders = filterByDateRange(posOrders, dateFrom, dateTo, (o: any) => new Date(o.created_at));
+  posOrders = posOrders.filter((o: any) => {
     if (!search) return true;
     const q = search.toLowerCase();
     return o.id.includes(q) || o.customer_name?.toLowerCase().includes(q) || o.phone?.includes(q);
@@ -585,19 +589,21 @@ export function AdminPOS() {
         />
       </div>
 
-      {/* Daily Summary */}
-      <DailySummary orders={posOrders} />
+      <DailySummary orders={(orders || []).filter((o: any) => !o.user_id)} />
 
-      {/* Search */}
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input placeholder="Search by ID, name, phone..." className="pl-9 rounded-xl" value={search} onChange={(e) => setSearch(e.target.value)} />
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative flex-1 min-w-[200px] max-w-sm">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input placeholder="Search by ID, name, phone..." className="pl-9 rounded-xl" value={search} onChange={(e) => setSearch(e.target.value)} />
+        </div>
+        <DateRangeFilter from={dateFrom} to={dateTo} onFromChange={setDateFrom} onToChange={setDateTo} />
       </div>
 
       {posOrders.length === 0 ? (
         <div className="rounded-xl border bg-card p-12 text-center">
           <Receipt className="mx-auto h-12 w-12 text-muted-foreground/30 mb-3" />
-          <p className="font-heading font-semibold">No POS records yet</p>
+          <p className="font-heading font-semibold">No POS records found</p>
           <p className="text-sm text-muted-foreground">Click "New Bill" to create your first in-store bill</p>
         </div>
       ) : (
@@ -648,12 +654,14 @@ export function AdminPOS() {
                         products={products || []}
                         onSaved={invalidate}
                         editOrder={o}
-                        trigger={
-                          <Button size="icon" variant="ghost" className="h-7 w-7" title="Edit Bill">
-                            <Pencil className="h-3.5 w-3.5" />
-                          </Button>
-                        }
+                        trigger={<Button size="icon" variant="ghost" className="h-7 w-7" title="Edit Bill"><Pencil className="h-3.5 w-3.5" /></Button>}
                       />
+                      <Button size="icon" variant="ghost" className="h-7 w-7" title="Thermal Receipt" onClick={() => printThermalReceipt(o)}>
+                        <Printer className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button size="icon" variant="ghost" className="h-7 w-7" title="WhatsApp" onClick={() => shareOnWhatsApp(o)}>
+                        <MessageCircle className="h-3.5 w-3.5" />
+                      </Button>
                       <Button size="icon" variant="ghost" className="h-7 w-7" title="Download Invoice" onClick={() => downloadInvoice(o)}>
                         <Download className="h-3.5 w-3.5" />
                       </Button>

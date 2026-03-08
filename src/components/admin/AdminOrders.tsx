@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { toast } from "sonner";
 import { Search, CheckCircle, Package, Truck, X } from "lucide-react";
 import { format } from "date-fns";
+import { DateRangeFilter, filterByDateRange } from "./DateRangeFilter";
 
 const STATUS_OPTIONS = ["pending", "confirmed", "packed", "out_for_delivery", "delivered"];
 const STATUS_COLORS: Record<string, string> = {
@@ -24,6 +25,8 @@ export function AdminOrders() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
+  const [dateFrom, setDateFrom] = useState<Date | undefined>();
+  const [dateTo, setDateTo] = useState<Date | undefined>();
 
   const { data: orders } = useQuery({
     queryKey: ["admin-orders"],
@@ -41,7 +44,7 @@ export function AdminOrders() {
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["admin-orders"] }); toast.success("Status updated"); },
   });
 
-  const filtered = orders?.filter((o: any) => {
+  let filtered = orders?.filter((o: any) => {
     if (statusFilter !== "all" && o.status !== statusFilter) return false;
     if (typeFilter !== "all" && o.customer_type !== typeFilter) return false;
     if (search) {
@@ -50,6 +53,8 @@ export function AdminOrders() {
     }
     return true;
   }) || [];
+
+  filtered = filterByDateRange(filtered, dateFrom, dateTo, (o: any) => new Date(o.created_at));
 
   return (
     <div className="space-y-6 p-6">
@@ -82,6 +87,9 @@ export function AdminOrders() {
           </SelectContent>
         </Select>
       </div>
+
+      {/* Date Range */}
+      <DateRangeFilter from={dateFrom} to={dateTo} onFromChange={setDateFrom} onToChange={setDateTo} />
 
       {/* Orders Table */}
       <div className="rounded-xl border bg-card overflow-hidden">

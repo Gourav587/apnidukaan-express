@@ -1,14 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { ShoppingCart, TrendingUp, Package, AlertTriangle, IndianRupee, Truck } from "lucide-react";
+import { ShoppingCart, TrendingUp, Package, AlertTriangle, IndianRupee, Truck, Plus, Warehouse, Receipt } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line, PieChart, Pie, Cell } from "recharts";
 import { format, subDays, startOfDay } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useNavigate } from "react-router-dom";
 
 const COLORS = ["hsl(22,87%,48%)", "hsl(148,57%,26%)", "hsl(215,16%,47%)", "hsl(0,84%,60%)", "hsl(22,87%,68%)"];
 
 export function AdminDashboard() {
+  const navigate = useNavigate();
+
   const { data: orders, isLoading } = useQuery({
     queryKey: ["admin-orders"],
     queryFn: async () => {
@@ -37,17 +41,14 @@ export function AdminDashboard() {
   const todayRevenue = todayOrders.reduce((s: number, o: any) => s + (o.total || 0), 0);
   const pendingOrders = orders?.filter((o: any) => o.status === "pending") || [];
   const lowStock = products?.filter((p: any) => p.stock < 10) || [];
-  const websiteOrders = orders?.filter((o: any) => o.customer_type === "retail") || [];
   const totalRevenue = orders?.reduce((s: number, o: any) => s + (o.total || 0), 0) || 0;
 
-  // Revenue chart - last 7 days
   const revenueData = Array.from({ length: 7 }, (_, i) => {
     const date = subDays(new Date(), 6 - i);
     const dayOrders = orders?.filter((o: any) => format(new Date(o.created_at), "yyyy-MM-dd") === format(date, "yyyy-MM-dd")) || [];
     return { day: format(date, "EEE"), revenue: dayOrders.reduce((s: number, o: any) => s + (o.total || 0), 0), orders: dayOrders.length };
   });
 
-  // Top products
   const productSales: Record<string, number> = {};
   orders?.forEach((o: any) => {
     (o.items as any[])?.forEach((item: any) => {
@@ -56,7 +57,6 @@ export function AdminDashboard() {
   });
   const topProducts = Object.entries(productSales).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([name, qty]) => ({ name: name.length > 15 ? name.slice(0, 15) + "…" : name, qty }));
 
-  // Orders by status
   const statusCounts = ["pending", "confirmed", "packed", "out_for_delivery", "delivered"].map((s) => ({
     name: s.replace(/_/g, " "),
     value: orders?.filter((o: any) => o.status === s).length || 0,
@@ -71,11 +71,27 @@ export function AdminDashboard() {
     { icon: Package, label: "Total Orders", value: orders?.length || 0, color: "text-secondary", bg: "bg-secondary/10" },
   ];
 
+  const quickActions = [
+    { label: "New Bill", icon: Receipt, onClick: () => navigate("/admin/pos"), color: "bg-primary text-primary-foreground" },
+    { label: "Add Product", icon: Plus, onClick: () => navigate("/admin/products"), color: "bg-secondary text-secondary-foreground" },
+    { label: "Low Stock", icon: Warehouse, onClick: () => navigate("/admin/inventory"), color: "bg-destructive text-destructive-foreground" },
+    { label: "View Orders", icon: ShoppingCart, onClick: () => navigate("/admin/orders"), color: "bg-accent text-accent-foreground" },
+  ];
+
   return (
     <div className="space-y-6 p-6">
       <div>
         <h1 className="font-heading text-2xl font-bold">Dashboard</h1>
         <p className="text-sm text-muted-foreground">Welcome back! Here's your store overview.</p>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="flex flex-wrap gap-3">
+        {quickActions.map((a) => (
+          <Button key={a.label} onClick={a.onClick} className={`gap-2 rounded-xl ${a.color}`}>
+            <a.icon className="h-4 w-4" /> {a.label}
+          </Button>
+        ))}
       </div>
 
       {/* Stats Grid */}
@@ -95,7 +111,6 @@ export function AdminDashboard() {
 
       {/* Charts Row */}
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Revenue Chart */}
         <div className="rounded-xl border bg-card p-5">
           <h3 className="font-heading font-semibold mb-4">Revenue (Last 7 Days)</h3>
           <ResponsiveContainer width="100%" height={250}>
@@ -109,7 +124,6 @@ export function AdminDashboard() {
           </ResponsiveContainer>
         </div>
 
-        {/* Orders Trend */}
         <div className="rounded-xl border bg-card p-5">
           <h3 className="font-heading font-semibold mb-4">Orders Trend</h3>
           <ResponsiveContainer width="100%" height={250}>
@@ -126,7 +140,6 @@ export function AdminDashboard() {
 
       {/* Bottom Row */}
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Top Products */}
         <div className="rounded-xl border bg-card p-5">
           <h3 className="font-heading font-semibold mb-4">Top Products</h3>
           {topProducts.length === 0 ? (
@@ -144,7 +157,6 @@ export function AdminDashboard() {
           )}
         </div>
 
-        {/* Order Status */}
         <div className="rounded-xl border bg-card p-5">
           <h3 className="font-heading font-semibold mb-4">Order Status</h3>
           <ResponsiveContainer width="100%" height={200}>
@@ -165,7 +177,6 @@ export function AdminDashboard() {
           </div>
         </div>
 
-        {/* Low Stock Alerts */}
         <div className="rounded-xl border bg-card p-5">
           <h3 className="font-heading font-semibold mb-4 flex items-center gap-2">
             <AlertTriangle className="h-4 w-4 text-destructive" /> Low Stock Alerts

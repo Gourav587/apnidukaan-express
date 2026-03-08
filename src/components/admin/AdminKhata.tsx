@@ -9,8 +9,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Plus, Search, UserPlus, IndianRupee, ArrowDownCircle, ArrowUpCircle, Trash2, History, Wallet } from "lucide-react";
+import { Search, UserPlus, IndianRupee, ArrowDownCircle, ArrowUpCircle, Trash2, History, Wallet } from "lucide-react";
 import { format } from "date-fns";
+import { DateRangeFilter, filterByDateRange } from "./DateRangeFilter";
 
 // ─── Add / Edit Customer Dialog ────────────────────────────────
 function CustomerDialog({ customer, onSaved, trigger }: { customer?: any; onSaved: () => void; trigger: React.ReactNode }) {
@@ -84,7 +85,6 @@ function RecordPaymentDialog({ customer, onSaved }: { customer: any; onSaved: ()
     if (!amt || amt <= 0) { toast.error("Enter a valid amount"); return; }
     setLoading(true);
     try {
-      // Insert payment transaction
       const { error: txError } = await supabase.from("khata_transactions").insert({
         customer_id: customer.id,
         type: "payment",
@@ -92,12 +92,9 @@ function RecordPaymentDialog({ customer, onSaved }: { customer: any; onSaved: ()
         description: description || `Payment received`,
       });
       if (txError) throw txError;
-
-      // Update customer balance
       const newBalance = Number(customer.balance) - amt;
       const { error: balError } = await supabase.from("khata_customers").update({ balance: newBalance }).eq("id", customer.id);
       if (balError) throw balError;
-
       toast.success(`₹${amt} payment recorded for ${customer.name}`);
       onSaved();
       setOpen(false);
@@ -143,6 +140,8 @@ function RecordPaymentDialog({ customer, onSaved }: { customer: any; onSaved: ()
 // ─── Transaction History Dialog ────────────────────────────────
 function TransactionHistoryDialog({ customer }: { customer: any }) {
   const [open, setOpen] = useState(false);
+  const [dateFrom, setDateFrom] = useState<Date | undefined>();
+  const [dateTo, setDateTo] = useState<Date | undefined>();
 
   const { data: transactions } = useQuery({
     queryKey: ["khata-transactions", customer.id, open],
@@ -158,6 +157,8 @@ function TransactionHistoryDialog({ customer }: { customer: any }) {
     enabled: open,
   });
 
+  const filtered = filterByDateRange(transactions || [], dateFrom, dateTo, (tx: any) => new Date(tx.created_at));
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -172,8 +173,9 @@ function TransactionHistoryDialog({ customer }: { customer: any }) {
             Balance: <span className={Number(customer.balance) > 0 ? "text-destructive font-semibold" : "text-primary font-semibold"}>₹{Number(customer.balance).toFixed(2)}</span>
           </p>
         </DialogHeader>
-        {(!transactions || transactions.length === 0) ? (
-          <p className="text-sm text-muted-foreground text-center py-8">No transactions yet</p>
+        <DateRangeFilter from={dateFrom} to={dateTo} onFromChange={setDateFrom} onToChange={setDateTo} />
+        {filtered.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-8">No transactions found</p>
         ) : (
           <div className="rounded-xl border overflow-hidden">
             <Table>
@@ -186,7 +188,7 @@ function TransactionHistoryDialog({ customer }: { customer: any }) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {transactions.map((tx: any) => (
+                {filtered.map((tx: any) => (
                   <TableRow key={tx.id}>
                     <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
                       {format(new Date(tx.created_at), "dd MMM, hh:mm a")}
@@ -257,7 +259,6 @@ export function AdminKhata() {
         />
       </div>
 
-      {/* Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         <Card className="rounded-xl">
           <CardContent className="p-4 flex items-center gap-3">
@@ -288,7 +289,6 @@ export function AdminKhata() {
         </Card>
       </div>
 
-      {/* Search */}
       <div className="relative max-w-sm">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input placeholder="Search by name or phone..." className="pl-9 rounded-xl" value={search} onChange={(e) => setSearch(e.target.value)} />
