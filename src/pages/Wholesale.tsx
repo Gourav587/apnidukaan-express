@@ -148,7 +148,7 @@ const Wholesale = () => {
               <User className="h-3.5 w-3.5" /> Profile
             </Button>
             <WholesaleCartButton />
-            <CartDrawer checkoutPath="/wholesale-checkout" />
+            <CartDrawer checkoutPath="/wholesale-checkout" isWholesale />
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={async () => { await supabase.auth.signOut(); navigate("/"); }}>
               <LogOut className="h-4 w-4" />
             </Button>
