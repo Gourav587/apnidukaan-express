@@ -211,6 +211,44 @@ export type Database = {
         }
         Relationships: []
       }
+      product_reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          product_id: string
+          rating: number
+          reviewer_name: string
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          product_id: string
+          rating: number
+          reviewer_name?: string
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          product_id?: string
+          rating?: number
+          reviewer_name?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           category_id: string | null
@@ -324,6 +362,45 @@ export type Database = {
           id?: string
           p256dh?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      saved_addresses: {
+        Row: {
+          address: string
+          created_at: string
+          id: string
+          is_default: boolean
+          label: string
+          name: string
+          phone: string
+          updated_at: string
+          user_id: string
+          village: string
+        }
+        Insert: {
+          address: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          label?: string
+          name: string
+          phone: string
+          updated_at?: string
+          user_id: string
+          village: string
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          label?: string
+          name?: string
+          phone?: string
+          updated_at?: string
+          user_id?: string
+          village?: string
         }
         Relationships: []
       }

@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Minus, ShoppingCart } from "lucide-react";
 import { useCartStore } from "@/lib/cart-store";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link } from "react-router-dom";
 
 interface ProductCardProps {
   id: string;
@@ -23,7 +24,7 @@ const ProductCard = ({ id, name, price, unit, image_url, stock }: ProductCardPro
       animate={{ opacity: 1, y: 0 }}
       className="group relative flex flex-col overflow-hidden rounded-2xl border bg-card transition-all hover:shadow-lg hover:-translate-y-0.5"
     >
-      <div className="relative aspect-square overflow-hidden bg-muted">
+      <Link to={`/products/${id}`} className="relative aspect-square overflow-hidden bg-muted block">
         {image_url ? (
           <img src={image_url} alt={name} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" />
         ) : (
@@ -50,9 +51,11 @@ const ProductCard = ({ id, name, price, unit, image_url, stock }: ProductCardPro
             </Button>
           </div>
         )}
-      </div>
+      </Link>
       <div className="flex flex-1 flex-col p-3">
-        <h3 className="text-sm font-medium leading-tight line-clamp-2">{name}</h3>
+        <Link to={`/products/${id}`}>
+          <h3 className="text-sm font-medium leading-tight line-clamp-2 hover:text-primary transition-colors">{name}</h3>
+        </Link>
         <p className="mt-0.5 text-xs text-muted-foreground">{unit}</p>
         <div className="mt-auto flex items-center justify-between pt-2">
           <span className="font-heading text-lg font-bold text-primary">₹{price}</span>
