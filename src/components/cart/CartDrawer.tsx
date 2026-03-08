@@ -100,14 +100,14 @@ const CartDrawer = ({ checkoutPath = "/checkout" }: { checkoutPath?: string }) =
                   const stock = getStock(item.id);
                   const maxQty = getMaxQty(item.id);
                   const overStock = item.quantity > stock;
-                  const overMax = item.quantity > maxQty;
+                  return (
                     <motion.div
                       key={item.id}
                       layout
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -20 }}
-                      className={`flex items-center gap-3 rounded-xl border p-3 ${overStock ? "border-destructive/40 bg-destructive/5" : "bg-card"}`}
+                      className={`flex items-center gap-3 rounded-xl border p-3 ${overStock || overMax ? "border-destructive/40 bg-destructive/5" : "bg-card"}`}
                     >
                       {item.image_url && (
                         <img src={item.image_url} alt={item.name} className="h-14 w-14 rounded-lg object-cover" loading="lazy" />
@@ -119,16 +119,19 @@ const CartDrawer = ({ checkoutPath = "/checkout" }: { checkoutPath?: string }) =
                         {overStock && (
                           <p className="text-[10px] text-destructive font-medium">Only {stock} available</p>
                         )}
-                        {stock !== Infinity && stock > 0 && !overStock && stock <= 10 && (
-                          <p className="text-[10px] text-amber-600 font-medium">Only {stock} left</p>
+                        {!overStock && overMax && (
+                          <p className="text-[10px] text-destructive font-medium">Max {maxQty} per order</p>
+                        )}
+                        {stock !== Infinity && stock > 0 && !overStock && !overMax && stock <= 10 && (
+                          <p className="text-[10px] text-muted-foreground font-medium">Only {stock} left</p>
                         )}
                       </div>
                       <div className="flex items-center gap-1">
                         <Button variant="outline" size="icon" className="h-7 w-7 rounded-lg" onClick={() => updateQuantity(item.id, item.quantity - 1)}>
                           <Minus className="h-3 w-3" />
                         </Button>
-                        <span className={`w-6 text-center text-sm font-medium ${overStock ? "text-destructive" : ""}`}>{item.quantity}</span>
-                        <Button variant="outline" size="icon" className="h-7 w-7 rounded-lg" disabled={item.quantity >= stock} onClick={() => updateQuantity(item.id, item.quantity + 1)}>
+                        <span className={`w-6 text-center text-sm font-medium ${overStock || overMax ? "text-destructive" : ""}`}>{item.quantity}</span>
+                        <Button variant="outline" size="icon" className="h-7 w-7 rounded-lg" disabled={item.quantity >= maxQty} onClick={() => updateQuantity(item.id, item.quantity + 1)}>
                           <Plus className="h-3 w-3" />
                         </Button>
                       </div>
