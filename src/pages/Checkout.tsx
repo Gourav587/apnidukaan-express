@@ -452,9 +452,31 @@ const Checkout = () => {
               </div>
             </motion.div>
 
+            {/* Stock Violations Warning */}
+            {hasStockViolations && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="rounded-xl bg-destructive/10 border border-destructive/20 p-4 text-sm text-destructive"
+              >
+                <div className="flex items-start gap-2">
+                  <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-medium">Insufficient stock for some items:</p>
+                    <ul className="mt-1 space-y-0.5 text-xs">
+                      {stockViolations.map(v => (
+                        <li key={v.id}>• {v.name}: {v.quantity} in cart (only {v.stock} available)</li>
+                      ))}
+                    </ul>
+                    <p className="mt-2 text-xs">Please reduce quantities above to continue.</p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
             {/* Submit - Mobile */}
             <div className="lg:hidden">
-              <Button type="submit" size="lg" className="w-full rounded-xl gap-2 text-base shadow-lg shadow-primary/20" disabled={loading}>
+              <Button type="submit" size="lg" className="w-full rounded-xl gap-2 text-base shadow-lg shadow-primary/20" disabled={loading || hasStockViolations}>
                 {loading ? (
                   <div className="flex items-center gap-2">
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
