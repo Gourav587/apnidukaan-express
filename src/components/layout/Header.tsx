@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { ShoppingCart, User, Menu, X, Search, LogOut } from "lucide-react";
+import { ShoppingCart, User, Menu, X, Search, LogOut, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCartStore } from "@/lib/cart-store";
@@ -66,6 +66,7 @@ const Header = () => {
           <Link to="/" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Home</Link>
           <Link to="/products" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Products</Link>
           <Link to="/orders" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">My Orders</Link>
+          <Link to="/wishlist" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Wishlist</Link>
         </nav>
 
         <div className="flex items-center gap-1">
@@ -73,6 +74,12 @@ const Header = () => {
           <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setSearchOpen(!searchOpen)}>
             <Search className="h-5 w-5" />
           </Button>
+
+          <Link to="/wishlist">
+            <Button variant="ghost" size="icon">
+              <Heart className="h-5 w-5" />
+            </Button>
+          </Link>
 
           <Button variant="ghost" size="icon" onClick={toggleCart} className="relative">
             <ShoppingCart className="h-5 w-5" />
@@ -157,6 +164,7 @@ const Header = () => {
               <Link to="/" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent transition-colors">Home</Link>
               <Link to="/products" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent transition-colors">Products</Link>
               <Link to="/orders" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent transition-colors">My Orders</Link>
+              <Link to="/wishlist" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent transition-colors">❤️ Wishlist</Link>
               {user ? (
                 <button onClick={() => { handleLogout(); setMenuOpen(false); }} className="rounded-lg px-3 py-2 text-sm font-medium text-left text-destructive hover:bg-accent transition-colors">
                   Logout
