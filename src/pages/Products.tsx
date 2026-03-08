@@ -6,7 +6,7 @@ import ProductSkeleton from "@/components/products/ProductSkeleton";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, SlidersHorizontal, Package } from "lucide-react";
+import { Search, SlidersHorizontal, Package, ChevronLeft, ChevronRight } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 
@@ -17,6 +17,7 @@ const SORT_OPTIONS = [
   { value: "price-asc", label: "Price: Low to High" },
   { value: "price-desc", label: "Price: High to Low" },
 ];
+const PRODUCTS_PER_PAGE = 20;
 
 const Products = () => {
   const [searchParams] = useSearchParams();
@@ -25,6 +26,7 @@ const Products = () => {
   const [activeCategory, setActiveCategory] = useState(initialCategory);
   const [search, setSearch] = useState(initialSearch);
   const [sortBy, setSortBy] = useState("name-asc");
+  const [page, setPage] = useState(1);
 
   const { data: products, isLoading } = useQuery({
     queryKey: ["products"],
@@ -59,6 +61,16 @@ const Products = () => {
     return result;
   }, [products, activeCategory, search, sortBy]);
 
+  // Reset page when filters change
+  const totalPages = Math.ceil(filtered.length / PRODUCTS_PER_PAGE);
+  const currentPage = Math.min(page, totalPages || 1);
+  const paginatedProducts = filtered.slice((currentPage - 1) * PRODUCTS_PER_PAGE, currentPage * PRODUCTS_PER_PAGE);
+
+  // Reset to page 1 when filters change
+  const handleCategoryChange = (cat: string) => { setActiveCategory(cat); setPage(1); };
+  const handleSearchChange = (val: string) => { setSearch(val); setPage(1); };
+  const handleSortChange = (val: string) => { setSortBy(val); setPage(1); };
+
   return (
     <div className="container py-6 md:py-10">
       <div className="flex items-center justify-between mb-6">
@@ -80,10 +92,10 @@ const Products = () => {
             placeholder="Search products... (e.g., atta, oil, sugar)"
             className="pl-10 rounded-xl"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
           />
         </div>
-        <Select value={sortBy} onValueChange={setSortBy}>
+        <Select value={sortBy} onValueChange={handleSortChange}>
           <SelectTrigger className="w-[160px] rounded-xl shrink-0">
             <SlidersHorizontal className="h-4 w-4 mr-1" />
             <SelectValue />
@@ -104,7 +116,7 @@ const Products = () => {
             variant={activeCategory === cat ? "default" : "outline"}
             size="sm"
             className="rounded-full whitespace-nowrap gap-1.5"
-            onClick={() => setActiveCategory(cat)}
+            onClick={() => handleCategoryChange(cat)}
           >
             {cat}
             {activeCategory === cat && cat !== "All" && products && (
@@ -129,25 +141,70 @@ const Products = () => {
           <p className="text-lg font-medium">No products found</p>
           <p className="text-sm text-muted-foreground mt-1">Try a different search or category</p>
           {search && (
-            <Button variant="outline" className="mt-4 rounded-xl" onClick={() => setSearch("")}>
+            <Button variant="outline" className="mt-4 rounded-xl" onClick={() => handleSearchChange("")}>
               Clear Search
             </Button>
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-          {filtered.map((product: any) => (
-            <ProductCard
-              key={product.id}
-              id={product.id}
-              name={product.name}
-              price={product.price}
-              unit={product.unit}
-              image_url={product.image_url}
-              stock={product.stock}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+            {paginatedProducts.map((product: any) => (
+              <ProductCard
+                key={product.id}
+                id={product.id}
+                name={product.name}
+                price={product.price}
+                unit={product.unit}
+                image_url={product.image_url}
+                stock={product.stock}
+              />
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-8">
+              <Button
+                variant="outline"
+                size="sm"
+                className="rounded-xl"
+                disabled={currentPage <= 1}
+                onClick={() => setPage(currentPage - 1)}
+              >
+                <ChevronLeft className="h-4 w-4 mr-1" /> Previous
+              </Button>
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+                  .map((p, idx, arr) => (
+                    <span key={p} className="contents">
+                      {idx > 0 && arr[idx - 1] !== p - 1 && (
+                        <span className="text-muted-foreground px-1">…</span>
+                      )}
+                      <Button
+                        variant={p === currentPage ? "default" : "outline"}
+                        size="sm"
+                        className="rounded-xl h-8 w-8 p-0"
+                        onClick={() => setPage(p)}
+                      >
+                        {p}
+                      </Button>
+                    </span>
+                  ))}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="rounded-xl"
+                disabled={currentPage >= totalPages}
+                onClick={() => setPage(currentPage + 1)}
+              >
+                Next <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

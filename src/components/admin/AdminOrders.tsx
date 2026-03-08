@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { Search, CheckCircle, Package, Truck, X } from "lucide-react";
+import { Search, CheckCircle, Package, Truck, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
 import { DateRangeFilter, filterByDateRange } from "./DateRangeFilter";
 
@@ -20,6 +20,8 @@ const STATUS_COLORS: Record<string, string> = {
   delivered: "bg-green-500/10 text-green-700 border-green-200",
 };
 
+const ORDERS_PER_PAGE = 25;
+
 export function AdminOrders() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
@@ -27,6 +29,7 @@ export function AdminOrders() {
   const [typeFilter, setTypeFilter] = useState("all");
   const [dateFrom, setDateFrom] = useState<Date | undefined>();
   const [dateTo, setDateTo] = useState<Date | undefined>();
+  const [page, setPage] = useState(1);
 
   const { data: orders } = useQuery({
     queryKey: ["admin-orders"],
@@ -41,7 +44,6 @@ export function AdminOrders() {
       const { error } = await supabase.from("orders").update({ status }).eq("id", id);
       if (error) throw error;
 
-      // Send push notification to the customer
       const order = orders?.find((o: any) => o.id === id);
       if (order?.user_id) {
         const statusLabels: Record<string, string> = {
@@ -54,13 +56,7 @@ export function AdminOrders() {
         const body = statusLabels[status] || `Order status updated to ${status}`;
         try {
           await supabase.functions.invoke("push-notifications", {
-            body: {
-              action: "send",
-              userId: order.user_id,
-              title: "🛒 ApniDukaan Order Update",
-              body,
-              url: "/orders",
-            },
+            body: { action: "send", userId: order.user_id, title: "🛒 ApniDukaan Order Update", body, url: "/orders" },
           });
         } catch (e) {
           console.error("Push notification failed:", e);
@@ -82,6 +78,12 @@ export function AdminOrders() {
 
   filtered = filterByDateRange(filtered, dateFrom, dateTo, (o: any) => new Date(o.created_at));
 
+  const totalPages = Math.ceil(filtered.length / ORDERS_PER_PAGE);
+  const currentPage = Math.min(page, totalPages || 1);
+  const paginatedOrders = filtered.slice((currentPage - 1) * ORDERS_PER_PAGE, currentPage * ORDERS_PER_PAGE);
+
+  const handleFilterChange = (setter: (v: any) => void) => (val: any) => { setter(val); setPage(1); };
+
   return (
     <div className="space-y-6 p-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -95,16 +97,16 @@ export function AdminOrders() {
       <div className="flex flex-wrap gap-3">
         <div className="relative flex-1 min-w-[200px] max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Search by ID, name, phone..." className="pl-9 rounded-xl" value={search} onChange={(e) => setSearch(e.target.value)} />
+          <Input placeholder="Search by ID, name, phone..." className="pl-9 rounded-xl" value={search} onChange={(e) => handleFilterChange(setSearch)(e.target.value)} />
         </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
+        <Select value={statusFilter} onValueChange={handleFilterChange(setStatusFilter)}>
           <SelectTrigger className="w-40 rounded-xl"><SelectValue placeholder="Status" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
             {STATUS_OPTIONS.map((s) => <SelectItem key={s} value={s} className="capitalize">{s.replace(/_/g, " ")}</SelectItem>)}
           </SelectContent>
         </Select>
-        <Select value={typeFilter} onValueChange={setTypeFilter}>
+        <Select value={typeFilter} onValueChange={handleFilterChange(setTypeFilter)}>
           <SelectTrigger className="w-36 rounded-xl"><SelectValue placeholder="Type" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Types</SelectItem>
@@ -115,7 +117,7 @@ export function AdminOrders() {
       </div>
 
       {/* Date Range */}
-      <DateRangeFilter from={dateFrom} to={dateTo} onFromChange={setDateFrom} onToChange={setDateTo} />
+      <DateRangeFilter from={dateFrom} to={dateTo} onFromChange={handleFilterChange(setDateFrom)} onToChange={handleFilterChange(setDateTo)} />
 
       {/* Orders Table */}
       <div className="rounded-xl border bg-card overflow-hidden">
@@ -133,10 +135,10 @@ export function AdminOrders() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.length === 0 && (
+            {paginatedOrders.length === 0 && (
               <TableRow><TableCell colSpan={8} className="text-center py-12 text-muted-foreground">No orders found</TableCell></TableRow>
             )}
-            {filtered.map((order: any) => (
+            {paginatedOrders.map((order: any) => (
               <TableRow key={order.id}>
                 <TableCell className="font-mono text-xs">#{order.id.slice(0, 8)}</TableCell>
                 <TableCell>
@@ -191,6 +193,42 @@ export function AdminOrders() {
           </TableBody>
         </Table>
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">
+            Showing {(currentPage - 1) * ORDERS_PER_PAGE + 1}–{Math.min(currentPage * ORDERS_PER_PAGE, filtered.length)} of {filtered.length}
+          </p>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" className="rounded-xl" disabled={currentPage <= 1} onClick={() => setPage(currentPage - 1)}>
+              <ChevronLeft className="h-4 w-4 mr-1" /> Previous
+            </Button>
+            <div className="flex items-center gap-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 1)
+                .map((p, idx, arr) => (
+                  <span key={p} className="contents">
+                    {idx > 0 && arr[idx - 1] !== p - 1 && (
+                      <span className="text-muted-foreground px-1">…</span>
+                    )}
+                    <Button
+                      variant={p === currentPage ? "default" : "outline"}
+                      size="sm"
+                      className="rounded-xl h-8 w-8 p-0"
+                      onClick={() => setPage(p)}
+                    >
+                      {p}
+                    </Button>
+                  </span>
+                ))}
+            </div>
+            <Button variant="outline" size="sm" className="rounded-xl" disabled={currentPage >= totalPages} onClick={() => setPage(currentPage + 1)}>
+              Next <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
