@@ -137,7 +137,17 @@ const ProductDetail = () => {
               {product.categories.name}
             </Link>
           )}
-          <h1 className="font-heading text-2xl font-bold md:text-3xl">{product.name}</h1>
+          <div className="flex items-center justify-between">
+            <h1 className="font-heading text-2xl font-bold md:text-3xl">{product.name}</h1>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="shrink-0 h-10 w-10 rounded-full"
+              onClick={() => toggleWishlist(product.id)}
+            >
+              <Heart className={`h-5 w-5 ${wishlisted ? "fill-destructive text-destructive" : "text-muted-foreground"}`} />
+            </Button>
+          </div>
           <p className="mt-1 text-sm text-muted-foreground">{product.unit}</p>
 
           <div className="mt-4 flex items-baseline gap-3">
