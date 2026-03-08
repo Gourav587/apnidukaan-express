@@ -18,6 +18,7 @@ const Auth = lazy(() => import("./pages/Auth"));
 const Admin = lazy(() => import("./pages/Admin"));
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const Wholesale = lazy(() => import("./pages/Wholesale"));
+const WholesaleRegister = lazy(() => import("./pages/WholesaleRegister"));
 const WholesaleCheckout = lazy(() => import("./pages/WholesaleCheckout"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
