@@ -44,7 +44,7 @@ const Index = () => {
                   <ShoppingBag className="h-5 w-5" /> Order Now
                 </Button>
               </Link>
-              <Link to="/products">
+              <Link to="/wholesale">
                 <Button size="lg" variant="outline" className="rounded-xl gap-2 text-base px-8 border-secondary text-secondary hover:bg-secondary hover:text-secondary-foreground">
                   🏪 Wholesale Portal
                 </Button>

@@ -41,6 +41,7 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
             </Route>
             <Route path="/admin" element={<Admin />} />
+            <Route path="/wholesale" element={<Wholesale />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
