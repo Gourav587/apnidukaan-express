@@ -339,34 +339,43 @@ export type Database = {
           address: string | null
           created_at: string
           customer_type: string
+          gst_number: string | null
           id: string
           name: string | null
           phone: string | null
+          shop_name: string | null
           updated_at: string
           user_id: string
           village: string | null
+          wholesale_status: string
         }
         Insert: {
           address?: string | null
           created_at?: string
           customer_type?: string
+          gst_number?: string | null
           id?: string
           name?: string | null
           phone?: string | null
+          shop_name?: string | null
           updated_at?: string
           user_id: string
           village?: string | null
+          wholesale_status?: string
         }
         Update: {
           address?: string | null
           created_at?: string
           customer_type?: string
+          gst_number?: string | null
           id?: string
           name?: string | null
           phone?: string | null
+          shop_name?: string | null
           updated_at?: string
           user_id?: string
           village?: string | null
+          wholesale_status?: string
         }
         Relationships: []
       }
