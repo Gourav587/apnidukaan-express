@@ -297,6 +297,9 @@ const WholesaleProductRow = ({ product }: { product: any }) => {
   const itemInCart = useCartStore((s) => s.items.find((i) => i.id === product.id));
   const wholesalePrice = product.wholesale_price || product.price;
   const savings = product.price > wholesalePrice ? Math.round(((product.price - wholesalePrice) / product.price) * 100) : 0;
+  const minQty = product.min_wholesale_qty || 1;
+  const currentQty = itemInCart?.quantity || 0;
+  const belowMin = currentQty > 0 && currentQty < minQty;
 
   const addMultiple = (qty: number) => {
     for (let i = 0; i < qty; i++) {
@@ -305,9 +308,16 @@ const WholesaleProductRow = ({ product }: { product: any }) => {
     toast.success(`${qty}× ${product.name} added`);
   };
 
+  const addMinQty = () => {
+    for (let i = 0; i < minQty; i++) {
+      addItem({ id: product.id, name: product.name, price: wholesalePrice, unit: product.unit, image_url: product.image_url });
+    }
+    toast.success(`${minQty}× ${product.name} added (minimum order)`);
+  };
+
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-      className="flex gap-3 rounded-xl border bg-card p-3 hover:shadow-sm transition-shadow">
+      className={`flex gap-3 rounded-xl border bg-card p-3 hover:shadow-sm transition-shadow ${belowMin ? "border-destructive/50" : ""}`}>
       {/* Image */}
       <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-muted">
         {product.image_url ? (
@@ -325,7 +335,10 @@ const WholesaleProductRow = ({ product }: { product: any }) => {
       {/* Info */}
       <div className="flex-1 min-w-0">
         <h3 className="text-sm font-medium leading-tight truncate">{product.name}</h3>
-        <p className="text-[10px] text-muted-foreground">{product.unit} • {product.categories?.name || ""}</p>
+        <p className="text-[10px] text-muted-foreground">
+          {product.unit} • {product.categories?.name || ""}
+          {minQty > 1 && <span className="text-secondary font-medium"> • Min: {minQty}</span>}
+        </p>
         <div className="flex items-center gap-2 mt-1">
           <span className="font-heading text-base font-bold text-secondary">₹{wholesalePrice}</span>
           {savings > 0 && (
@@ -336,6 +349,11 @@ const WholesaleProductRow = ({ product }: { product: any }) => {
           )}
         </div>
 
+        {/* MOQ warning */}
+        {belowMin && (
+          <p className="text-[10px] text-destructive mt-1">⚠️ Add {minQty - currentQty} more to meet minimum</p>
+        )}
+
         {/* Bulk buttons & qty */}
         <div className="flex items-center gap-1.5 mt-2 flex-wrap">
           {itemInCart ? (
@@ -343,19 +361,24 @@ const WholesaleProductRow = ({ product }: { product: any }) => {
               <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => removeItem(product.id)}>
                 <Minus className="h-3 w-3" />
               </Button>
-              <span className="text-sm font-semibold w-8 text-center">{itemInCart.quantity}</span>
+              <span className={`text-sm font-semibold w-8 text-center ${belowMin ? "text-destructive" : ""}`}>{itemInCart.quantity}</span>
               <Button size="icon" variant="ghost" className="h-6 w-6"
                 onClick={() => addItem({ id: product.id, name: product.name, price: wholesalePrice, unit: product.unit, image_url: product.image_url })}>
                 <Plus className="h-3 w-3" />
               </Button>
             </div>
+          ) : minQty > 1 ? (
+            <Button size="sm" className="h-7 text-xs rounded-lg bg-secondary hover:bg-secondary/90" disabled={product.stock <= 0}
+              onClick={addMinQty}>
+              + Add {minQty}
+            </Button>
           ) : (
             <Button size="sm" className="h-7 text-xs rounded-lg bg-secondary hover:bg-secondary/90" disabled={product.stock <= 0}
               onClick={() => addItem({ id: product.id, name: product.name, price: wholesalePrice, unit: product.unit, image_url: product.image_url })}>
               + Add
             </Button>
           )}
-          {BULK_PRESETS.map((qty) => (
+          {BULK_PRESETS.filter(q => q >= minQty).map((qty) => (
             <Button key={qty} size="sm" variant="outline" className="h-7 text-[10px] rounded-lg px-2" disabled={product.stock <= 0}
               onClick={() => addMultiple(qty)}>
               +{qty}
