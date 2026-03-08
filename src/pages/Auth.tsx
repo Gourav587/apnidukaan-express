@@ -14,6 +14,8 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [signupForm, setSignupForm] = useState({ email: "", password: "", name: "", phone: "" });
+  const [showForgot, setShowForgot] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,6 +25,19 @@ const Auth = () => {
     if (error) { toast.error(error.message); return; }
     toast.success("Logged in!");
     navigate(redirectTo);
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!forgotEmail) { toast.error("Enter your email"); return; }
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setLoading(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Password reset link sent! Check your email.");
+    setShowForgot(false);
   };
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -66,10 +81,40 @@ const Auth = () => {
                 <Label>Password</Label>
                 <Input type="password" className="rounded-xl mt-1" placeholder="••••••••" value={loginForm.password} onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })} required />
               </div>
+              <div className="text-right">
+                <button type="button" className="text-xs text-primary hover:underline" onClick={() => setShowForgot(true)}>
+                  Forgot password?
+                </button>
+              </div>
               <Button type="submit" className="w-full rounded-xl" disabled={loading}>
                 {loading ? "Logging in..." : "Login"}
               </Button>
             </form>
+
+            {/* Forgot Password Modal */}
+            {showForgot && (
+              <div className="mt-4 rounded-xl border bg-muted/50 p-4 space-y-3">
+                <p className="text-sm font-medium">Reset your password</p>
+                <form onSubmit={handleForgotPassword} className="space-y-3">
+                  <Input
+                    type="email"
+                    className="rounded-xl"
+                    placeholder="Enter your email"
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                    required
+                  />
+                  <div className="flex gap-2">
+                    <Button type="submit" size="sm" className="rounded-xl" disabled={loading}>
+                      {loading ? "Sending..." : "Send Reset Link"}
+                    </Button>
+                    <Button type="button" size="sm" variant="ghost" className="rounded-xl" onClick={() => setShowForgot(false)}>
+                      Cancel
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="signup">
