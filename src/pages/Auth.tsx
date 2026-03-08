@@ -81,10 +81,40 @@ const Auth = () => {
                 <Label>Password</Label>
                 <Input type="password" className="rounded-xl mt-1" placeholder="••••••••" value={loginForm.password} onChange={(e) => setLoginForm({ ...loginForm, password: e.target.value })} required />
               </div>
+              <div className="text-right">
+                <button type="button" className="text-xs text-primary hover:underline" onClick={() => setShowForgot(true)}>
+                  Forgot password?
+                </button>
+              </div>
               <Button type="submit" className="w-full rounded-xl" disabled={loading}>
                 {loading ? "Logging in..." : "Login"}
               </Button>
             </form>
+
+            {/* Forgot Password Modal */}
+            {showForgot && (
+              <div className="mt-4 rounded-xl border bg-muted/50 p-4 space-y-3">
+                <p className="text-sm font-medium">Reset your password</p>
+                <form onSubmit={handleForgotPassword} className="space-y-3">
+                  <Input
+                    type="email"
+                    className="rounded-xl"
+                    placeholder="Enter your email"
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                    required
+                  />
+                  <div className="flex gap-2">
+                    <Button type="submit" size="sm" className="rounded-xl" disabled={loading}>
+                      {loading ? "Sending..." : "Send Reset Link"}
+                    </Button>
+                    <Button type="button" size="sm" variant="ghost" className="rounded-xl" onClick={() => setShowForgot(false)}>
+                      Cancel
+                    </Button>
+                  </div>
+                </form>
+              </div>
+            )
           </TabsContent>
 
           <TabsContent value="signup">
