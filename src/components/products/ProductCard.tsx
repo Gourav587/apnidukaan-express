@@ -51,9 +51,11 @@ const ProductCard = ({ id, name, price, unit, image_url, stock }: ProductCardPro
             </Button>
           </div>
         )}
-      </div>
+      </Link>
       <div className="flex flex-1 flex-col p-3">
-        <h3 className="text-sm font-medium leading-tight line-clamp-2">{name}</h3>
+        <Link to={`/products/${id}`}>
+          <h3 className="text-sm font-medium leading-tight line-clamp-2 hover:text-primary transition-colors">{name}</h3>
+        </Link>
         <p className="mt-0.5 text-xs text-muted-foreground">{unit}</p>
         <div className="mt-auto flex items-center justify-between pt-2">
           <span className="font-heading text-lg font-bold text-primary">₹{price}</span>
