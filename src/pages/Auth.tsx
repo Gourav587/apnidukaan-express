@@ -89,7 +89,7 @@ const Auth = () => {
   };
 
   const features = [
-    { icon: Truck, text: "Free delivery above ₹100" },
+    { icon: Truck, text: "Free delivery above ₹500" },
     { icon: Clock, text: "30-minute delivery" },
     { icon: Shield, text: "100% genuine products" },
   ];
