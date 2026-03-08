@@ -3,10 +3,10 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import ProductCard from "@/components/products/ProductCard";
 import ProductSkeleton from "@/components/products/ProductSkeleton";
-import { Input } from "@/components/ui/input";
+import ProductSearchAutocomplete from "@/components/products/ProductSearchAutocomplete";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, SlidersHorizontal, Package, ChevronLeft, ChevronRight } from "lucide-react";
+import { SlidersHorizontal, Package, ChevronLeft, ChevronRight } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 
@@ -86,15 +86,11 @@ const Products = () => {
 
       {/* Search + Sort */}
       <div className="flex gap-2 mb-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Search products... (e.g., atta, oil, sugar)"
-            className="pl-10 rounded-xl"
-            value={search}
-            onChange={(e) => handleSearchChange(e.target.value)}
-          />
-        </div>
+        <ProductSearchAutocomplete
+          value={search}
+          onChange={handleSearchChange}
+          placeholder="Search products... (e.g., atta, oil, sugar)"
+        />
         <Select value={sortBy} onValueChange={handleSortChange}>
           <SelectTrigger className="w-[160px] rounded-xl shrink-0">
             <SlidersHorizontal className="h-4 w-4 mr-1" />
