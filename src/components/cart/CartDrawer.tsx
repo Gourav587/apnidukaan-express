@@ -36,6 +36,13 @@ const CartDrawer = ({ checkoutPath = "/checkout" }: { checkoutPath?: string }) =
     return p?.stock ?? Infinity;
   };
 
+  const getMaxQty = (id: string) => {
+    const p = stockData?.find((s: any) => s.id === id);
+    const stock = p?.stock ?? Infinity;
+    const maxRetail = p?.max_retail_qty ?? 5;
+    return Math.min(stock, maxRetail);
+  };
+
   const hasStockIssues = items.some(item => item.quantity > getStock(item.id));
 
   return (
