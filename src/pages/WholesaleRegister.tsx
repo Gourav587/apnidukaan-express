@@ -137,9 +137,6 @@ const WholesaleRegister = () => {
       }
     }
 
-    const STORE_PHONE = "917888918171";
-    const whatsappMsg = `🏪 *New Wholesale Registration!*\n\n👤 *Owner:* ${signupForm.ownerName.trim()}\n🏬 *Shop:* ${signupForm.shopName.trim()}\n📞 *Phone:* ${signupForm.phone.trim()}\n📍 *Village:* ${signupForm.village.trim()}\n🏠 *Address:* ${signupForm.address.trim()}${signupForm.gstNumber.trim() ? `\n🏷️ *GST:* ${signupForm.gstNumber.trim()}` : ""}\n📧 *Email:* ${signupForm.email.trim()}\n\n⏳ *Status:* Pending Approval\n\nPlease review in Admin Panel → Wholesale → Approvals`;
-    window.open(`https://wa.me/${STORE_PHONE}?text=${encodeURIComponent(whatsappMsg)}`, "_blank");
 
     setLoading(false);
     setSubmitted(true);
@@ -163,12 +160,6 @@ const WholesaleRegister = () => {
           <div className="flex gap-3 justify-center">
             <Button variant="outline" className="rounded-xl" onClick={() => navigate("/")}>
               <ArrowLeft className="h-4 w-4 mr-1" /> Back to Store
-            </Button>
-            <Button className="rounded-xl bg-secondary hover:bg-secondary/90" onClick={() => {
-              const msg = `🏪 New Wholesale Registration!\n\n👤 ${signupForm.ownerName.trim()}\n🏬 ${signupForm.shopName.trim()}\n📞 ${signupForm.phone.trim()}\n📍 ${signupForm.village.trim()}\n\nPlease review and approve.`;
-              window.open(`https://wa.me/917888918171?text=${encodeURIComponent(msg)}`, "_blank");
-            }}>
-              WhatsApp Us for Faster Approval
             </Button>
           </div>
         </motion.div>
@@ -226,8 +217,7 @@ const WholesaleRegister = () => {
             <div className="mt-6 rounded-xl bg-secondary/5 border border-secondary/20 p-4">
               <p className="text-xs text-muted-foreground">
                 <strong className="text-foreground">Minimum order:</strong> ₹2,000 per order<br />
-                <strong className="text-foreground">Approval:</strong> 1-2 business days<br />
-                <strong className="text-foreground">Support:</strong> Dedicated WhatsApp line
+                <strong className="text-foreground">Approval:</strong> 1-2 business days
               </p>
             </div>
           </motion.div>
