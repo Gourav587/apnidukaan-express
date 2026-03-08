@@ -195,6 +195,45 @@ const WholesaleCheckout = () => {
       <div className="container py-4 md:py-10">
         <div className="grid gap-4 md:gap-8 lg:grid-cols-5">
           <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4 lg:col-span-3" id="wholesale-checkout-form">
+            {/* Delivery Address */}
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+              className="rounded-xl border bg-card p-4 md:p-6 space-y-3 md:space-y-4">
+              <h2 className="font-heading font-semibold text-base md:text-lg flex items-center gap-2">
+                <MapPin className="h-4 w-4 md:h-5 md:w-5 text-primary" /> Delivery Details
+              </h2>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <Label className="text-xs font-medium text-muted-foreground">Full Name *</Label>
+                  <Input placeholder="Your name" className={`rounded-xl mt-1 h-11 ${addressErrors.name ? "border-destructive" : ""}`}
+                    value={addressForm.name} onChange={(e) => { setAddressForm(f => ({ ...f, name: e.target.value })); setAddressErrors(e2 => ({ ...e2, name: "" })); }} />
+                  {addressErrors.name && <p className="text-xs text-destructive mt-1">{addressErrors.name}</p>}
+                </div>
+                <div>
+                  <Label className="text-xs font-medium text-muted-foreground">Phone Number *</Label>
+                  <Input placeholder="9876543210" inputMode="numeric" maxLength={10}
+                    className={`rounded-xl mt-1 h-11 ${addressErrors.phone ? "border-destructive" : ""}`}
+                    value={addressForm.phone} onChange={(e) => { setAddressForm(f => ({ ...f, phone: e.target.value })); setAddressErrors(e2 => ({ ...e2, phone: "" })); }} />
+                  {addressErrors.phone && <p className="text-xs text-destructive mt-1">{addressErrors.phone}</p>}
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs font-medium text-muted-foreground">Delivery Address *</Label>
+                <Input placeholder="Shop address, Street, Landmark" className={`rounded-xl mt-1 h-11 ${addressErrors.address ? "border-destructive" : ""}`}
+                  value={addressForm.address} onChange={(e) => { setAddressForm(f => ({ ...f, address: e.target.value })); setAddressErrors(e2 => ({ ...e2, address: "" })); }} />
+                {addressErrors.address && <p className="text-xs text-destructive mt-1">{addressErrors.address}</p>}
+              </div>
+              <div>
+                <Label className="text-xs font-medium text-muted-foreground">Village/Area *</Label>
+                <Select value={addressForm.village} onValueChange={(v) => { setAddressForm(f => ({ ...f, village: v })); setAddressErrors(e2 => ({ ...e2, village: "" })); }}>
+                  <SelectTrigger className={`rounded-xl mt-1 h-11 ${addressErrors.village ? "border-destructive" : ""}`}><SelectValue placeholder="Select area" /></SelectTrigger>
+                  <SelectContent>
+                    {VILLAGES.map((v) => <SelectItem key={v} value={v}>{v}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                {addressErrors.village && <p className="text-xs text-destructive mt-1">{addressErrors.village}</p>}
+              </div>
+            </motion.div>
+
             {/* Payment Method */}
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
               className="rounded-xl border bg-card p-4 md:p-6 space-y-3 md:space-y-4">
