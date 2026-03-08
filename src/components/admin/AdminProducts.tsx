@@ -34,7 +34,7 @@ const ProductForm = ({ product, categories, onSave }: any) => {
   };
 
   return (
-    <form onSubmit={(e) => { e.preventDefault(); onSave({ ...form, price: Number(form.price), mrp: Number(form.mrp) || null, wholesale_price: Number(form.wholesale_price), stock: Number(form.stock), min_wholesale_qty: Number(form.min_wholesale_qty) || 1, max_wholesale_qty: Number(form.max_wholesale_qty) || null }); }} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+    <form onSubmit={(e) => { e.preventDefault(); onSave({ ...form, price: Number(form.price), mrp: Number(form.mrp) || null, wholesale_price: Number(form.wholesale_price), stock: Number(form.stock), min_wholesale_qty: Number(form.min_wholesale_qty) || 1, max_wholesale_qty: Number(form.max_wholesale_qty) || null, max_retail_qty: Number(form.max_retail_qty) || 5 }); }} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
       <div><Label>Product Name</Label><Input className="rounded-xl mt-1" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></div>
       <div><Label>Description</Label><Textarea className="rounded-xl mt-1" rows={2} value={form.description || ""} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
       <div className="grid grid-cols-2 gap-3">
