@@ -29,7 +29,29 @@ const WholesaleCheckout = () => {
   const [partialAmount, setPartialAmount] = useState("");
   const [notes, setNotes] = useState("");
   const [showMobileSummary, setShowMobileSummary] = useState(false);
+  const [addressForm, setAddressForm] = useState({ name: "", phone: "", address: "", village: "" });
+  const [addressErrors, setAddressErrors] = useState<Record<string, string>>({});
   const submittingRef = useRef(false);
+
+  const VILLAGES = ["Dinanagar", "Awankha", "Taragarh", "Kahnuwan", "Other"];
+
+  // Prefill address from profile
+  useEffect(() => {
+    const loadProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      const { data: profile } = await supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle();
+      if (profile) {
+        setAddressForm({
+          name: profile.name || "",
+          phone: profile.phone || "",
+          address: profile.address || "",
+          village: profile.village || "",
+        });
+      }
+    };
+    loadProfile();
+  }, []);
 
   const { data: products } = useQuery({
     queryKey: ["products-moq-stock"],
