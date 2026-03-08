@@ -74,7 +74,12 @@ const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(({ id, name, pr
         </Link>
         <p className="mt-0.5 text-xs text-muted-foreground">{unit}</p>
         <div className="mt-auto flex items-center justify-between pt-2">
-          <span className="font-heading text-lg font-bold text-primary">₹{price}</span>
+          <div className="flex items-baseline gap-1.5">
+            <span className="font-heading text-lg font-bold text-primary">₹{price}</span>
+            {mrp && mrp > price && (
+              <span className="text-xs text-muted-foreground line-through">₹{mrp}</span>
+            )}
+          </div>
           <AnimatePresence mode="wait">
             {itemInCart ? (
               <motion.div
