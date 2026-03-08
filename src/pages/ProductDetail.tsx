@@ -30,6 +30,20 @@ const ProductDetail = () => {
     enabled: !!id,
   });
 
+  const { data: productImages } = useQuery({
+    queryKey: ["product-images", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("product_images")
+        .select("*")
+        .eq("product_id", id!)
+        .order("sort_order");
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id,
+  });
+
   const { data: relatedProducts } = useQuery({
     queryKey: ["related-products", product?.category_id],
     queryFn: async () => {
