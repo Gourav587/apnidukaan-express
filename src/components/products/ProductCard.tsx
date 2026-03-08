@@ -77,16 +77,16 @@ const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(({ id, name, pr
           </div>
         )}
       </Link>
-      <div className="flex flex-1 flex-col p-3">
+      <div className="flex flex-1 flex-col p-2.5 sm:p-3">
         <Link to={`/products/${id}`}>
-          <h3 className="text-sm font-medium leading-tight line-clamp-2 hover:text-primary transition-colors">{name}</h3>
+          <h3 className="text-xs sm:text-sm font-medium leading-tight line-clamp-2 hover:text-primary transition-colors">{name}</h3>
         </Link>
-        <p className="mt-0.5 text-xs text-muted-foreground">{unit}</p>
-        <div className="mt-auto flex items-center justify-between pt-2">
-          <div className="flex items-baseline gap-1.5">
-            <span className="font-heading text-lg font-bold text-primary">₹{price}</span>
+        <p className="mt-0.5 text-[10px] sm:text-xs text-muted-foreground">{unit}</p>
+        <div className="mt-auto flex items-center justify-between pt-1.5 sm:pt-2">
+          <div className="flex items-baseline gap-1">
+            <span className="font-heading text-base sm:text-lg font-bold text-primary">₹{price}</span>
             {mrp && mrp > price && (
-              <span className="text-xs text-muted-foreground line-through">₹{mrp}</span>
+              <span className="text-[10px] sm:text-xs text-muted-foreground line-through">₹{mrp}</span>
             )}
           </div>
           <AnimatePresence mode="wait">

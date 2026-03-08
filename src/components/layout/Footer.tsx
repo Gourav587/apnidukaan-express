@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Phone, MapPin, Clock, ArrowRight } from "lucide-react";
 
 const Footer = () => (
-  <footer className="border-t bg-card mt-auto">
+  <footer className="border-t bg-card mt-auto hidden md:block">
     <div className="container py-10">
       <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
         <div>

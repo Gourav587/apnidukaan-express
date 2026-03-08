@@ -3,6 +3,7 @@ import { AnimatePresence } from "framer-motion";
 import Header from "./Header";
 import Footer from "./Footer";
 import WhatsAppButton from "./WhatsAppButton";
+import MobileBottomNav from "./MobileBottomNav";
 import CartDrawer from "@/components/cart/CartDrawer";
 import NotificationPrompt from "@/components/notifications/NotificationPrompt";
 import AIChatbot from "@/components/chatbot/AIChatbot";
@@ -13,7 +14,7 @@ const Layout = () => {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="flex-1">
+      <main className="flex-1 pb-16 md:pb-0">
         <AnimatePresence mode="wait">
           <PageTransition key={location.pathname}>
             <Outlet />
@@ -23,6 +24,7 @@ const Layout = () => {
       <Footer />
       <CartDrawer />
       <WhatsAppButton />
+      <MobileBottomNav />
       <NotificationPrompt />
       <AIChatbot />
     </div>

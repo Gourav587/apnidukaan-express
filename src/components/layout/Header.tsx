@@ -143,17 +143,17 @@ const Header = () => {
 
           <div className="flex items-center gap-1">
             {/* Mobile Search Toggle */}
-            <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setSearchOpen(!searchOpen)}>
+            <Button variant="ghost" size="icon" className="md:hidden h-10 w-10" onClick={() => setSearchOpen(!searchOpen)}>
               <Search className="h-5 w-5" />
             </Button>
 
-            <Link to="/wishlist">
+            <Link to="/wishlist" className="hidden md:block">
               <Button variant="ghost" size="icon">
                 <Heart className="h-5 w-5" />
               </Button>
             </Link>
 
-            <Button variant="ghost" size="icon" onClick={toggleCart} className="relative">
+            <Button variant="ghost" size="icon" onClick={toggleCart} className="relative hidden md:flex">
               <ShoppingCart className="h-5 w-5" />
               {totalItems > 0 && (
                 <motion.span
@@ -169,7 +169,7 @@ const Header = () => {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="relative">
+                  <Button variant="ghost" size="icon" className="relative h-10 w-10">
                     <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
                       {(user.user_metadata?.name?.[0] || user.email?.[0] || "U").toUpperCase()}
                     </div>
@@ -201,14 +201,14 @@ const Header = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Link to="/auth">
+              <Link to="/auth" className="hidden md:block">
                 <Button variant="ghost" size="icon">
                   <User className="h-5 w-5" />
                 </Button>
               </Link>
             )}
 
-            <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
+            <Button variant="ghost" size="icon" className="md:hidden h-10 w-10" onClick={() => setMenuOpen(!menuOpen)}>
               {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
           </div>
