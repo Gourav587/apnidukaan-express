@@ -86,14 +86,11 @@ const Products = () => {
 
       {/* Search + Sort */}
       <div className="flex gap-2 mb-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Search products... (e.g., atta, oil, sugar)"
-            className="pl-10 rounded-xl"
-            value={search}
-            onChange={(e) => handleSearchChange(e.target.value)}
-          />
+        <ProductSearchAutocomplete
+          value={search}
+          onChange={handleSearchChange}
+          placeholder="Search products... (e.g., atta, oil, sugar)"
+        />
         </div>
         <Select value={sortBy} onValueChange={handleSortChange}>
           <SelectTrigger className="w-[160px] rounded-xl shrink-0">
