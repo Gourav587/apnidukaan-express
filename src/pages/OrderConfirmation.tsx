@@ -66,9 +66,9 @@ const OrderConfirmation = () => {
           💵 Payment: Cash on Delivery
         </div>
 
-        <div className="flex gap-3 pt-2">
-          <Button variant="outline" className="flex-1 rounded-xl" onClick={() => navigate("/products")}>Continue Shopping</Button>
-          <Button className="flex-1 rounded-xl" onClick={() => navigate("/orders")}>View My Orders</Button>
+        <div className="flex flex-col sm:flex-row gap-3 pt-2">
+          <Button variant="outline" className="flex-1 rounded-xl h-11" onClick={() => navigate("/products")}>Continue Shopping</Button>
+          <Button className="flex-1 rounded-xl h-11" onClick={() => navigate("/orders")}>View My Orders</Button>
         </div>
       </motion.div>
     </div>
