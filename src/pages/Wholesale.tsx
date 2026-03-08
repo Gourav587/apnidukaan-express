@@ -666,7 +666,6 @@ const WholesaleCartButton = () => {
 };
 
 export default Wholesale;
-    for (let i = 0; i < minQty; i++) {
       addItem({ id: product.id, name: product.name, price: wholesalePrice, unit: product.unit, image_url: product.image_url });
     }
     toast.success(`${minQty}× ${product.name} added (minimum order)`);
