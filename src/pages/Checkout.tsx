@@ -250,6 +250,7 @@ const Checkout = () => {
     } catch (err: any) {
       toast.error(err.message || "Failed to place order");
     } finally {
+      submittingRef.current = false;
       setLoading(false);
     }
   };

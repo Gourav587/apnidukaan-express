@@ -84,10 +84,12 @@ const WholesaleCheckout = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submittingRef.current) return;
     if (belowMinimum) {
       toast.error(`Minimum wholesale order is ₹${MIN_ORDER}`);
       return;
     }
+    submittingRef.current = true;
     setLoading(true);
 
     try {
