@@ -188,7 +188,7 @@ const Wholesale = () => {
           </div>
         </motion.div>
 
-        <Tabs defaultValue="products">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-3 sm:mb-4 w-full sm:w-auto overflow-x-auto scrollbar-hide">
             <TabsTrigger value="products" className="gap-1 text-xs sm:text-sm"><Package className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Products</span><span className="sm:hidden">Shop</span></TabsTrigger>
             <TabsTrigger value="orders" className="gap-1 text-xs sm:text-sm"><ShoppingBag className="h-3.5 w-3.5" /> Orders</TabsTrigger>
