@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 const DELIVERY_FEE = 30;
 const FREE_DELIVERY_THRESHOLD = 500;
 
-const CartDrawer = () => {
+const CartDrawer = ({ checkoutPath = "/checkout" }: { checkoutPath?: string }) => {
   const { items, isOpen, setOpen, updateQuantity, removeItem, subtotal } = useCartStore();
   const navigate = useNavigate();
   const sub = subtotal();
