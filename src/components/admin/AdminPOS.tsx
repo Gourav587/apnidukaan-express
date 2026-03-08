@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Receipt, Plus, Trash2, Eye, Download, Search, IndianRupee, ShoppingBag, Pencil, CreditCard, Smartphone, Banknote } from "lucide-react";
+import { Receipt, Plus, Trash2, Eye, Download, Search, IndianRupee, ShoppingBag, Pencil, CreditCard, Smartphone, Banknote, Wallet } from "lucide-react";
 import { format } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -20,13 +20,14 @@ interface BillItem {
   unit: string;
 }
 
-type PaymentMethod = "cash" | "upi" | "card" | "online";
+type PaymentMethod = "cash" | "upi" | "card" | "online" | "credit";
 
 const PAYMENT_METHODS: { value: PaymentMethod; label: string; icon: React.ReactNode }[] = [
   { value: "cash", label: "Cash", icon: <Banknote className="h-4 w-4" /> },
   { value: "upi", label: "UPI", icon: <Smartphone className="h-4 w-4" /> },
   { value: "card", label: "Card", icon: <CreditCard className="h-4 w-4" /> },
   { value: "online", label: "Online", icon: <IndianRupee className="h-4 w-4" /> },
+  { value: "credit", label: "Khata", icon: <Wallet className="h-4 w-4" /> },
 ];
 
 const paymentBadgeVariant = (method: string) => {
@@ -34,6 +35,7 @@ const paymentBadgeVariant = (method: string) => {
     case "upi": return "default";
     case "card": return "secondary";
     case "online": return "outline";
+    case "credit": return "destructive";
     default: return "secondary";
   }
 };
@@ -234,6 +236,16 @@ function BillDialog({
   const [selectedProduct, setSelectedProduct] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [selectedKhataCustomer, setSelectedKhataCustomer] = useState("");
+
+  // Fetch khata customers for credit payment
+  const { data: khataCustomers } = useQuery({
+    queryKey: ["khata-customers"],
+    queryFn: async () => {
+      const { data } = await supabase.from("khata_customers").select("*").order("name");
+      return data || [];
+    },
+  });
 
   const resetForm = () => {
     setBillItems(editOrder ? (editOrder.items as BillItem[]) || [] : []);
@@ -243,7 +255,18 @@ function BillDialog({
     setDiscountPercent(0);
     setTaxPercent(0);
     setSelectedProduct("");
+    setSelectedKhataCustomer("");
     setQuantity(1);
+  };
+
+  // Auto-fill customer info when khata customer selected
+  const handleKhataSelect = (customerId: string) => {
+    setSelectedKhataCustomer(customerId);
+    const kc = (khataCustomers || []).find((c: any) => c.id === customerId);
+    if (kc) {
+      setCustomerName(kc.name);
+      setCustomerPhone(kc.phone || "");
+    }
   };
 
   const addItem = () => {
@@ -271,11 +294,13 @@ function BillDialog({
 
   const handleSubmit = async () => {
     if (billItems.length === 0) { toast.error("Add at least one item"); return; }
+    if (paymentMethod === "credit" && !selectedKhataCustomer) { toast.error("Select a khata customer"); return; }
     setLoading(true);
     try {
+      const finalTotal = Math.round(total * 100) / 100;
       const payload = {
         items: billItems.map((i) => ({ name: i.name, price: i.price, quantity: i.quantity, unit: i.unit })),
-        total: Math.round(total * 100) / 100,
+        total: finalTotal,
         status: "delivered",
         customer_type: "retail",
         customer_name: customerName || "Walk-in Customer",
@@ -285,15 +310,37 @@ function BillDialog({
         tax: Math.round(taxAmt * 100) / 100,
       };
 
+      let orderId: string | null = null;
+
       if (editOrder) {
         const { error } = await supabase.from("orders").update(payload).eq("id", editOrder.id);
         if (error) throw error;
+        orderId = editOrder.id;
         toast.success("Bill updated successfully!");
       } else {
-        const { error } = await supabase.from("orders").insert(payload);
+        const { data: inserted, error } = await supabase.from("orders").insert(payload).select("id").single();
         if (error) throw error;
+        orderId = inserted.id;
         toast.success("Bill created successfully!");
       }
+
+      // If credit payment, add khata transaction and update balance
+      if (paymentMethod === "credit" && selectedKhataCustomer && !editOrder) {
+        const kc = (khataCustomers || []).find((c: any) => c.id === selectedKhataCustomer);
+        if (kc) {
+          await supabase.from("khata_transactions").insert({
+            customer_id: selectedKhataCustomer,
+            order_id: orderId,
+            type: "credit",
+            amount: finalTotal,
+            description: `POS Bill #${orderId?.slice(0, 8).toUpperCase()}`,
+          });
+          await supabase.from("khata_customers").update({
+            balance: Number(kc.balance) + finalTotal,
+          }).eq("id", selectedKhataCustomer);
+        }
+      }
+
       onSaved();
       resetForm();
       setOpen(false);
@@ -327,7 +374,7 @@ function BillDialog({
           {/* Payment Method */}
           <div>
             <Label className="text-xs font-semibold">Payment Method</Label>
-            <div className="grid grid-cols-4 gap-2 mt-1">
+            <div className="grid grid-cols-5 gap-2 mt-1">
               {PAYMENT_METHODS.map((m) => (
                 <Button
                   key={m.value}
@@ -341,6 +388,24 @@ function BillDialog({
               ))}
             </div>
           </div>
+
+          {/* Khata Customer Selection */}
+          {paymentMethod === "credit" && (
+            <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-3 space-y-2">
+              <Label className="text-xs font-semibold text-destructive">Select Khata Customer *</Label>
+              <Select value={selectedKhataCustomer} onValueChange={handleKhataSelect}>
+                <SelectTrigger className="rounded-xl"><SelectValue placeholder="Choose customer" /></SelectTrigger>
+                <SelectContent>
+                  {(khataCustomers || []).map((c: any) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name} {c.phone ? `(${c.phone})` : ""} — Balance: ₹{Number(c.balance).toFixed(0)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-[11px] text-muted-foreground">Amount will be added to customer's credit balance</p>
+            </div>
+          )}
 
           {/* Add Product */}
           <div className="rounded-xl border p-3 space-y-3">

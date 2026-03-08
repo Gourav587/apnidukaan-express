@@ -1,5 +1,5 @@
 import {
-  LayoutDashboard, Package, ShoppingCart, Warehouse, Users, BarChart3, Settings, BookOpen, Truck, Receipt,
+  LayoutDashboard, Package, ShoppingCart, Warehouse, Users, BarChart3, Settings, BookOpen, Truck, Receipt, Wallet,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -20,6 +20,7 @@ const businessItems = [
   { title: "Wholesale", url: "/admin/wholesale", icon: BookOpen },
   { title: "Delivery", url: "/admin/delivery", icon: Truck },
   { title: "POS Records", url: "/admin/pos", icon: Receipt },
+  { title: "Khata", url: "/admin/khata", icon: Wallet },
 ];
 
 const insightItems = [
