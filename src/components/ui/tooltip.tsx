@@ -1,22 +1,21 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-// Simplified tooltip implementation that doesn't depend on @radix-ui/react-tooltip
-// to avoid React version mismatch issues
+// Simplified tooltip that avoids @radix-ui/react-tooltip React version mismatch
 
-const TooltipProvider = ({ children }: { children: React.ReactNode }) => {
+const TooltipProvider = ({ children, ...props }: { children: React.ReactNode; [key: string]: any }) => {
   return <>{children}</>;
 };
 
-const Tooltip = ({ children }: { children: React.ReactNode }) => {
+const Tooltip = ({ children, ...props }: { children: React.ReactNode; [key: string]: any }) => {
   return <>{children}</>;
 };
 
 const TooltipTrigger = React.forwardRef<
   HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement> & { asChild?: boolean }
->(({ children, ...props }, ref) => {
-  if (props.asChild) {
+>(({ children, asChild, ...props }, ref) => {
+  if (asChild) {
     return <>{children}</>;
   }
   return (
@@ -29,9 +28,8 @@ TooltipTrigger.displayName = "TooltipTrigger";
 
 const TooltipContent = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & { sideOffset?: number }
->(({ className, sideOffset = 4, children, ...props }, ref) => {
-  // Render nothing - tooltips are non-essential UI
+  React.HTMLAttributes<HTMLDivElement> & { sideOffset?: number; side?: string; [key: string]: any }
+>(({ className, sideOffset, side, children, hidden, ...props }, ref) => {
   return null;
 });
 TooltipContent.displayName = "TooltipContent";
