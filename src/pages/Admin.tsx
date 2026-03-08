@@ -107,6 +107,37 @@ const Admin = () => {
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["admin-products"] }); toast.success("Product deleted"); },
   });
 
+  const addLedgerEntry = useMutation({
+    mutationFn: async (entry: any) => {
+      // Get current balance for this user
+      const { data: lastEntry } = await supabase
+        .from("ledger")
+        .select("balance")
+        .eq("user_id", entry.user_id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      const prevBalance = lastEntry?.balance || 0;
+      const newBalance = entry.type === "payment"
+        ? prevBalance - Number(entry.amount)
+        : prevBalance + Number(entry.amount);
+      const { error } = await supabase.from("ledger").insert({
+        user_id: entry.user_id,
+        type: entry.type,
+        amount: Number(entry.amount),
+        balance: newBalance,
+        description: entry.description,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-ledger"] });
+      setLedgerDialogOpen(false);
+      setLedgerForm({ user_id: "", type: "debit", amount: "", description: "" });
+      toast.success("Ledger entry added");
+    },
+  });
+
   if (isAdmin === null) return <div className="container py-20 text-center"><p>Checking access...</p></div>;
 
   const todayOrders = orders?.filter((o: any) => new Date(o.created_at).toDateString() === new Date().toDateString()) || [];
