@@ -14,6 +14,7 @@ const OrderConfirmation = lazy(() => import("./pages/OrderConfirmation"));
 const Orders = lazy(() => import("./pages/Orders"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Admin = lazy(() => import("./pages/Admin"));
+const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const Wholesale = lazy(() => import("./pages/Wholesale"));
 const WholesaleCheckout = lazy(() => import("./pages/WholesaleCheckout"));
 const NotFound = lazy(() => import("./pages/NotFound"));
