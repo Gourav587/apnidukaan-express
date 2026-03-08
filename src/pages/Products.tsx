@@ -31,6 +31,7 @@ const Products = () => {
   const [search, setSearch] = useState(initialSearch);
   const [sortBy, setSortBy] = useState("name-asc");
   const [page, setPage] = useState(1);
+  const [sortSheetOpen, setSortSheetOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: products, isLoading } = useQuery({
