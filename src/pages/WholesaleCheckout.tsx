@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { useCartStore } from "@/lib/cart-store";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
-import { ArrowLeft, ShoppingBag } from "lucide-react";
+import { ArrowLeft, ShoppingBag, AlertTriangle } from "lucide-react";
 import { motion } from "framer-motion";
 
 const PAYMENT_METHODS = [
@@ -28,8 +29,32 @@ const WholesaleCheckout = () => {
   const [partialAmount, setPartialAmount] = useState("");
   const [notes, setNotes] = useState("");
 
+  // Fetch products to check MOQ
+  const { data: products } = useQuery({
+    queryKey: ["products-moq"],
+    queryFn: async () => {
+      const ids = items.map(i => i.id);
+      if (ids.length === 0) return [];
+      const { data } = await supabase.from("products").select("id, min_wholesale_qty").in("id", ids);
+      return data || [];
+    },
+    enabled: items.length > 0,
+  });
+
   const sub = subtotal();
   const total = sub; // No delivery fee for wholesale
+
+  // Check MOQ violations
+  const moqViolations = items.filter(item => {
+    const product = products?.find((p: any) => p.id === item.id);
+    const minQty = product?.min_wholesale_qty || 1;
+    return item.quantity < minQty;
+  }).map(item => {
+    const product = products?.find((p: any) => p.id === item.id);
+    return { ...item, minQty: product?.min_wholesale_qty || 1 };
+  });
+
+  const hasMoqViolations = moqViolations.length > 0;
 
   if (items.length === 0) {
     return (
