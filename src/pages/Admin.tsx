@@ -13,6 +13,7 @@ import { AdminCustomers } from "@/components/admin/AdminCustomers";
 import { AdminWholesale } from "@/components/admin/AdminWholesale";
 import { AdminDelivery } from "@/components/admin/AdminDelivery";
 import { AdminPOS } from "@/components/admin/AdminPOS";
+import { AdminKhata } from "@/components/admin/AdminKhata";
 import { AdminAnalytics } from "@/components/admin/AdminAnalytics";
 import { AdminSettings } from "@/components/admin/AdminSettings";
 import { useOrderNotifications } from "@/hooks/use-order-notifications";
