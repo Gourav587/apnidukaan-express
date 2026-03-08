@@ -31,7 +31,7 @@ const Products = () => {
   const [search, setSearch] = useState(initialSearch);
   const [sortBy, setSortBy] = useState("name-asc");
   const [page, setPage] = useState(1);
-  const [sortSheetOpen, setSortSheetOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: products, isLoading } = useQuery({
     queryKey: ["products"],
@@ -45,6 +45,12 @@ const Products = () => {
       return data;
     },
   });
+
+  const handleRefresh = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: ["products"] });
+  }, [queryClient]);
+
+  const { pullDistance, isRefreshing } = usePullToRefresh({ onRefresh: handleRefresh });
 
   const filtered = useMemo(() => {
     if (!products) return [];
