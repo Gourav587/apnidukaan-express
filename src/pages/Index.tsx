@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import ProductCard from "@/components/products/ProductCard";
 import ProductSkeleton from "@/components/products/ProductSkeleton";
 import HeroSkeleton from "@/components/home/HeroSkeleton";
+import { RetailInstallPrompt } from "@/components/home/RetailInstallPrompt";
 
 const categories = [
   { name: "Grains", icon: Wheat, emoji: "🌾" },
