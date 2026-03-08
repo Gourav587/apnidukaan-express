@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -38,7 +38,22 @@ const Wholesale = () => {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
   const [profileOpen, setProfileOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("products");
   const [profileForm, setProfileForm] = useState({ name: "", phone: "", shop_name: "", gst_number: "", village: "", address: "" });
+
+  const TAB_ORDER = ["products", "orders", "ledger", "analytics"];
+  const handleSwipe = useCallback((_: any, info: { offset: { x: number }; velocity: { x: number } }) => {
+    const swipeThreshold = 50;
+    const velocityThreshold = 300;
+    if (Math.abs(info.offset.x) > swipeThreshold || Math.abs(info.velocity.x) > velocityThreshold) {
+      const currentIndex = TAB_ORDER.indexOf(activeTab);
+      if (info.offset.x < 0 && currentIndex < TAB_ORDER.length - 1) {
+        setActiveTab(TAB_ORDER[currentIndex + 1]);
+      } else if (info.offset.x > 0 && currentIndex > 0) {
+        setActiveTab(TAB_ORDER[currentIndex - 1]);
+      }
+    }
+  }, [activeTab]);
 
   useEffect(() => {
     const check = async () => {
@@ -188,7 +203,7 @@ const Wholesale = () => {
           </div>
         </motion.div>
 
-        <Tabs defaultValue="products">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-3 sm:mb-4 w-full sm:w-auto overflow-x-auto scrollbar-hide">
             <TabsTrigger value="products" className="gap-1 text-xs sm:text-sm"><Package className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Products</span><span className="sm:hidden">Shop</span></TabsTrigger>
             <TabsTrigger value="orders" className="gap-1 text-xs sm:text-sm"><ShoppingBag className="h-3.5 w-3.5" /> Orders</TabsTrigger>
@@ -196,6 +211,14 @@ const Wholesale = () => {
             <TabsTrigger value="analytics" className="gap-1 text-xs sm:text-sm"><BarChart3 className="h-3.5 w-3.5" /> <span className="hidden sm:inline">Analytics</span><span className="sm:hidden">Stats</span></TabsTrigger>
           </TabsList>
 
+          <motion.div
+            key={activeTab}
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.15}
+            onDragEnd={handleSwipe}
+            className="touch-pan-y"
+          >
           {/* Products Tab */}
           <TabsContent value="products">
             <div className="relative mb-4">
@@ -389,6 +412,7 @@ const Wholesale = () => {
               </div>
             </div>
           </TabsContent>
+          </motion.div>
         </Tabs>
       </div>
 
