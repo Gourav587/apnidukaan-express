@@ -24,8 +24,19 @@ const Checkout = () => {
   const { items, subtotal, clearCart } = useCartStore();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const [form, setForm] = useState({ name: "", phone: "", address: "", village: "", deliverySlot: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) {
+        navigate("/auth?redirect=/checkout");
+      } else {
+        setCheckingAuth(false);
+      }
+    });
+  }, [navigate]);
 
   const sub = subtotal();
   const delivery = sub >= 500 ? 0 : 30;

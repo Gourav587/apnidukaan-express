@@ -22,7 +22,7 @@ const Auth = () => {
     setLoading(false);
     if (error) { toast.error(error.message); return; }
     toast.success("Logged in!");
-    navigate("/");
+    navigate(redirectTo);
   };
 
   const handleSignup = async (e: React.FormEvent) => {
