@@ -1,5 +1,5 @@
 import {
-  LayoutDashboard, Package, ShoppingCart, Warehouse, Users, BarChart3, Settings, BookOpen, Truck, Receipt,
+  LayoutDashboard, Package, ShoppingCart, Warehouse, Users, BarChart3, Settings, BookOpen, Truck, Receipt, Wallet,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
