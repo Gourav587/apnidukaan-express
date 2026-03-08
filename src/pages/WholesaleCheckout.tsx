@@ -108,6 +108,7 @@ const WholesaleCheckout = () => {
         address: profile?.address || "",
         village: profile?.village || "",
         customer_type: "wholesale",
+        payment_method: paymentMethod,
       };
 
       const { data: order, error } = await supabase.from("orders").insert(orderPayload).select("id").maybeSingle();

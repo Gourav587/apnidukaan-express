@@ -42,12 +42,26 @@ const Auth = () => {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate inputs
+    const name = signupForm.name.trim();
+    const phone = signupForm.phone.trim();
+    if (name.length < 2 || name.length > 100) {
+      toast.error("Name must be 2-100 characters"); return;
+    }
+    if (!/^[6-9]\d{9}$/.test(phone)) {
+      toast.error("Enter a valid 10-digit phone number"); return;
+    }
+    if (signupForm.password.length < 6) {
+      toast.error("Password must be at least 6 characters"); return;
+    }
+
     setLoading(true);
     const { error } = await supabase.auth.signUp({
       email: signupForm.email,
       password: signupForm.password,
       options: {
-        data: { name: signupForm.name, phone: signupForm.phone },
+        data: { name, phone },
         emailRedirectTo: window.location.origin,
       },
     });

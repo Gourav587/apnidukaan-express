@@ -272,13 +272,13 @@ function BillDialog({
   const addItem = () => {
     const product = products.find((p) => p.id === selectedProduct);
     if (!product) return;
-    const existing = billItems.findIndex((i) => i.name === product.name);
+    const existing = billItems.findIndex((i) => i.id === product.id);
     if (existing >= 0) {
       const updated = [...billItems];
       updated[existing].quantity += quantity;
       setBillItems(updated);
     } else {
-      setBillItems([...billItems, { name: product.name, price: product.price, quantity, unit: product.unit }]);
+      setBillItems([...billItems, { id: product.id, name: product.name, price: product.price, quantity, unit: product.unit }]);
     }
     setSelectedProduct("");
     setQuantity(1);
@@ -299,7 +299,7 @@ function BillDialog({
     try {
       const finalTotal = Math.round(total * 100) / 100;
       const payload = {
-        items: billItems.map((i) => ({ name: i.name, price: i.price, quantity: i.quantity, unit: i.unit })),
+        items: billItems.map((i) => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity, unit: i.unit })),
         total: finalTotal,
         status: "delivered",
         customer_type: "retail",
@@ -322,15 +322,7 @@ function BillDialog({
         if (error) throw error;
         orderId = inserted.id;
 
-        // Auto-deduct stock for each item
-        for (const item of billItems) {
-          const product = products.find((p) => p.name === item.name);
-          if (product) {
-            const newStock = Math.max(0, product.stock - item.quantity);
-            await supabase.from("products").update({ stock: newStock }).eq("id", product.id);
-          }
-        }
-
+        // Stock is automatically deducted by the decrease_stock_on_order trigger on order insert
         toast.success("Bill created successfully!");
       }
 

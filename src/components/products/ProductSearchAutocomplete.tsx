@@ -60,7 +60,7 @@ const ProductSearchAutocomplete = ({
   const handleSelect = (productId: string) => {
     setOpen(false);
     setFocused(false);
-    navigate(`/product/${productId}`);
+    navigate(`/products/${productId}`);
   };
 
   return (
