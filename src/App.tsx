@@ -27,8 +27,13 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const queryClient = new QueryClient();
 
 const Loading = () => (
-  <div className="flex min-h-[50vh] items-center justify-center">
-    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+  <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background">
+    <div className="relative">
+      <div className="h-16 w-16 rounded-full border-4 border-muted" />
+      <div className="absolute inset-0 h-16 w-16 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+    </div>
+    <p className="font-heading text-lg font-semibold text-foreground">Loading...</p>
+    <p className="text-sm text-muted-foreground">Please wait a moment</p>
   </div>
 );
 
