@@ -322,15 +322,7 @@ function BillDialog({
         if (error) throw error;
         orderId = inserted.id;
 
-        // Auto-deduct stock for each item
-        for (const item of billItems) {
-          const product = products.find((p) => p.name === item.name);
-          if (product) {
-            const newStock = Math.max(0, product.stock - item.quantity);
-            await supabase.from("products").update({ stock: newStock }).eq("id", product.id);
-          }
-        }
-
+        // Stock is automatically deducted by the decrease_stock_on_order trigger on order insert
         toast.success("Bill created successfully!");
       }
 
