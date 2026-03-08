@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useCartStore } from "@/lib/cart-store";
 import { supabase } from "@/integrations/supabase/client";
