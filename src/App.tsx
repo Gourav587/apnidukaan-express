@@ -48,6 +48,7 @@ const App = () => (
               <Route path="/wishlist" element={<Wishlist />} />
               <Route path="/orders" element={<Orders />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
             </Route>
             <Route path="/admin/*" element={<Admin />} />
             <Route path="/admin-login" element={<AdminLogin />} />
