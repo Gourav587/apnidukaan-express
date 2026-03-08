@@ -66,6 +66,7 @@ const Header = () => {
           <Link to="/" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Home</Link>
           <Link to="/products" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Products</Link>
           <Link to="/orders" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">My Orders</Link>
+          <Link to="/wishlist" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Wishlist</Link>
         </nav>
 
         <div className="flex items-center gap-1">
