@@ -106,19 +106,41 @@ export function AdminHeader() {
     setUnreadCount(notifs.filter((n) => !n.read).length);
   }, []);
 
+  const playNotificationSound = useCallback(() => {
+    try {
+      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const playTone = (freq: number, startTime: number, duration: number) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = freq;
+        osc.type = "sine";
+        gain.gain.setValueAtTime(0.3, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+        osc.start(startTime);
+        osc.stop(startTime + duration);
+      };
+      const now = ctx.currentTime;
+      playTone(880, now, 0.15);
+      playTone(1174.66, now + 0.15, 0.2);
+      setTimeout(() => ctx.close(), 1000);
+    } catch { /* silent */ }
+  }, []);
+
   useEffect(() => {
     fetchNotifications();
 
-    // Subscribe to new orders in realtime
     const channel = supabase
       .channel("admin-header-notifications")
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "orders" }, () => {
+        playNotificationSound();
         fetchNotifications();
       })
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [fetchNotifications]);
+  }, [fetchNotifications, playNotificationSound]);
 
   const toggleDark = () => {
     document.documentElement.classList.toggle("dark");
