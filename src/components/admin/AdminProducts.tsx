@@ -16,11 +16,11 @@ import { Plus, Pencil, Trash2, Search } from "lucide-react";
 const ProductForm = ({ product, categories, onSave }: any) => {
   const [form, setForm] = useState(product || {
     name: "", price: 0, wholesale_price: 0, stock: 0, unit: "1 kg",
-    category_id: "", image_url: "", is_active: true, description: "",
+    category_id: "", image_url: "", is_active: true, description: "", min_wholesale_qty: 1,
   });
 
   return (
-    <form onSubmit={(e) => { e.preventDefault(); onSave({ ...form, price: Number(form.price), wholesale_price: Number(form.wholesale_price), stock: Number(form.stock) }); }} className="space-y-4">
+    <form onSubmit={(e) => { e.preventDefault(); onSave({ ...form, price: Number(form.price), wholesale_price: Number(form.wholesale_price), stock: Number(form.stock), min_wholesale_qty: Number(form.min_wholesale_qty) || 1 }); }} className="space-y-4">
       <div><Label>Product Name</Label><Input className="rounded-xl mt-1" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></div>
       <div><Label>Description</Label><Textarea className="rounded-xl mt-1" rows={2} value={form.description || ""} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
       <div className="grid grid-cols-3 gap-3">
@@ -28,7 +28,7 @@ const ProductForm = ({ product, categories, onSave }: any) => {
         <div><Label>Wholesale (₹)</Label><Input type="number" className="rounded-xl mt-1" value={form.wholesale_price || ""} onChange={(e) => setForm({ ...form, wholesale_price: e.target.value })} /></div>
         <div><Label>Stock</Label><Input type="number" className="rounded-xl mt-1" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} required /></div>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-3 gap-3">
         <div><Label>Unit</Label><Input className="rounded-xl mt-1" value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} /></div>
         <div>
           <Label>Category</Label>
@@ -37,6 +37,7 @@ const ProductForm = ({ product, categories, onSave }: any) => {
             <SelectContent>{categories?.map((c: any) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
           </Select>
         </div>
+        <div><Label>Min Wholesale Qty</Label><Input type="number" min="1" className="rounded-xl mt-1" value={form.min_wholesale_qty || 1} onChange={(e) => setForm({ ...form, min_wholesale_qty: e.target.value })} /></div>
       </div>
       <div><Label>Image URL</Label><Input className="rounded-xl mt-1" value={form.image_url || ""} onChange={(e) => setForm({ ...form, image_url: e.target.value })} /></div>
       <div className="flex items-center gap-2">
