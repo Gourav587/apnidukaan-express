@@ -3,7 +3,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import Header from "./Header";
 import Footer from "./Footer";
-import WhatsAppButton from "./WhatsAppButton";
+
 import MobileBottomNav from "./MobileBottomNav";
 import CartDrawer from "@/components/cart/CartDrawer";
 import NotificationPrompt from "@/components/notifications/NotificationPrompt";
