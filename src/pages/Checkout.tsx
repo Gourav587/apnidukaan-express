@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { z } from "zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { MapPin, Check, Trash2, Minus, Plus, ShoppingBag, Truck, Clock, CreditCard, ArrowLeft, Shield, X } from "lucide-react";
+import { MapPin, Check, Trash2, Minus, Plus, ShoppingBag, Truck, Clock, CreditCard, ArrowLeft, Shield, X, AlertTriangle } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { motion, AnimatePresence } from "framer-motion";
 
