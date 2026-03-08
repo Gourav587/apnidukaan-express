@@ -161,12 +161,6 @@ const WholesaleRegister = () => {
             <Button variant="outline" className="rounded-xl" onClick={() => navigate("/")}>
               <ArrowLeft className="h-4 w-4 mr-1" /> Back to Store
             </Button>
-            <Button className="rounded-xl bg-secondary hover:bg-secondary/90" onClick={() => {
-              const msg = `🏪 New Wholesale Registration!\n\n👤 ${signupForm.ownerName.trim()}\n🏬 ${signupForm.shopName.trim()}\n📞 ${signupForm.phone.trim()}\n📍 ${signupForm.village.trim()}\n\nPlease review and approve.`;
-              window.open(`https://wa.me/917888918171?text=${encodeURIComponent(msg)}`, "_blank");
-            }}>
-              WhatsApp Us for Faster Approval
-            </Button>
           </div>
         </motion.div>
       </div>
