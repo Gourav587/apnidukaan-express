@@ -7,6 +7,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { format, subDays, startOfDay } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNavigate } from "react-router-dom";
+import { AdminInstallPrompt } from "./AdminInstallPrompt";
 
 const COLORS = ["hsl(22,87%,48%)", "hsl(148,57%,26%)", "hsl(215,16%,47%)", "hsl(0,84%,60%)", "hsl(22,87%,68%)"];
 
@@ -79,7 +80,9 @@ export function AdminDashboard() {
   ];
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6">
+      <AdminInstallPrompt />
+      <div className="space-y-6 p-6">
       <div>
         <h1 className="font-heading text-2xl font-bold">Dashboard</h1>
         <p className="text-sm text-muted-foreground">Welcome back! Here's your store overview.</p>
@@ -196,6 +199,7 @@ export function AdminDashboard() {
             </div>
           )}
         </div>
+      </div>
       </div>
     </div>
   );
