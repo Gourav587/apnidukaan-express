@@ -227,6 +227,21 @@ const Wholesale = () => {
     </div>
   );
 };
+// Cart button for wholesale header
+const WholesaleCartButton = () => {
+  const totalItems = useCartStore((s) => s.totalItems());
+  const toggleCart = useCartStore((s) => s.toggleCart);
+  return (
+    <Button variant="ghost" size="icon" className="relative" onClick={toggleCart}>
+      <ShoppingBag className="h-5 w-5" />
+      {totalItems > 0 && (
+        <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+          {totalItems}
+        </span>
+      )}
+    </Button>
+  );
+};
 
 // Wholesale product card shows wholesale price
 const WholesaleProductCard = ({ product }: { product: any }) => {
