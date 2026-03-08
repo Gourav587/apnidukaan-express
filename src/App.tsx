@@ -13,6 +13,7 @@ const OrderConfirmation = lazy(() => import("./pages/OrderConfirmation"));
 const Orders = lazy(() => import("./pages/Orders"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Admin = lazy(() => import("./pages/Admin"));
+const Wholesale = lazy(() => import("./pages/Wholesale"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -40,6 +41,7 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
             </Route>
             <Route path="/admin" element={<Admin />} />
+            <Route path="/wholesale" element={<Wholesale />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
