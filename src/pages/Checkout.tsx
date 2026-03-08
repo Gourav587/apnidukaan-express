@@ -42,6 +42,14 @@ const Checkout = () => {
   const delivery = sub >= 500 ? 0 : 30;
   const total = sub + delivery;
 
+  if (checkingAuth) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
   if (items.length === 0) {
     return (
       <div className="container py-20 text-center">
