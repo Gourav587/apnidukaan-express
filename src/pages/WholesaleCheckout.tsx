@@ -165,17 +165,16 @@ const WholesaleCheckout = () => {
               <h2 className="font-heading font-semibold text-base md:text-lg">Payment Method</h2>
               <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod} className="grid grid-cols-2 gap-2 md:grid-cols-1 md:space-y-0">
                 {PAYMENT_METHODS.map((pm) => (
-                  <div key={pm.value}
+                  <label key={pm.value} htmlFor={`pay-${pm.value}`}
                     className={`flex items-start space-x-2 md:space-x-3 rounded-xl border p-3 md:p-4 cursor-pointer transition-colors ${
                       paymentMethod === pm.value ? "border-primary bg-accent" : "hover:bg-muted/50"
-                    }`}
-                    onClick={() => setPaymentMethod(pm.value)}>
-                    <RadioGroupItem value={pm.value} id={pm.value} className="mt-0.5 shrink-0" />
+                    }`}>
+                    <RadioGroupItem value={pm.value} id={`pay-${pm.value}`} className="mt-0.5 shrink-0" />
                     <div className="min-w-0">
-                      <Label htmlFor={pm.value} className="font-medium cursor-pointer text-xs md:text-sm">{pm.label}</Label>
+                      <span className="font-medium text-xs md:text-sm">{pm.label}</span>
                       <p className="text-[10px] md:text-xs text-muted-foreground leading-tight">{pm.desc}</p>
                     </div>
-                  </div>
+                  </label>
                 ))}
               </RadioGroup>
 
