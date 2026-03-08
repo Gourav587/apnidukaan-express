@@ -12,6 +12,7 @@ const Products = lazy(() => import("./pages/Products"));
 const ProductDetail = lazy(() => import("./pages/ProductDetail"));
 const Checkout = lazy(() => import("./pages/Checkout"));
 const OrderConfirmation = lazy(() => import("./pages/OrderConfirmation"));
+const Wishlist = lazy(() => import("./pages/Wishlist"));
 const Orders = lazy(() => import("./pages/Orders"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Admin = lazy(() => import("./pages/Admin"));
