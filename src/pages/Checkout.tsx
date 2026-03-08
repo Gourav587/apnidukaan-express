@@ -133,9 +133,9 @@ const Checkout = () => {
   };
 
   const sub = subtotal();
-  const delivery = sub >= 500 ? 0 : 30;
+  const delivery = sub >= 100 ? 0 : 30;
   const total = sub + delivery;
-  const freeDeliveryGap = 500 - sub;
+  const freeDeliveryGap = 100 - sub;
 
   if (checkingAuth) {
     return (
