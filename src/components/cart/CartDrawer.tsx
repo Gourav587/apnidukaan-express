@@ -1,10 +1,12 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Minus, Plus, Trash2, ShoppingBag, Sparkles } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, Sparkles, AlertTriangle } from "lucide-react";
 import { useCartStore } from "@/lib/cart-store";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Progress } from "@/components/ui/progress";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const DELIVERY_FEE = 30;
 const FREE_DELIVERY_THRESHOLD = 500;
@@ -16,6 +18,25 @@ const CartDrawer = ({ checkoutPath = "/checkout" }: { checkoutPath?: string }) =
   const delivery = sub >= FREE_DELIVERY_THRESHOLD ? 0 : DELIVERY_FEE;
   const total = sub + delivery;
   const progressToFree = Math.min((sub / FREE_DELIVERY_THRESHOLD) * 100, 100);
+
+  // Fetch stock for items in cart
+  const { data: stockData } = useQuery({
+    queryKey: ["cart-stock", items.map(i => i.id).join(",")],
+    queryFn: async () => {
+      const ids = items.map(i => i.id);
+      if (ids.length === 0) return [];
+      const { data } = await supabase.from("products").select("id, stock").in("id", ids);
+      return data || [];
+    },
+    enabled: isOpen && items.length > 0,
+  });
+
+  const getStock = (id: string) => {
+    const p = stockData?.find((s: any) => s.id === id);
+    return p?.stock ?? Infinity;
+  };
+
+  const hasStockIssues = items.some(item => item.quantity > getStock(item.id));
 
   return (
     <Sheet open={isOpen} onOpenChange={setOpen}>
@@ -58,39 +79,57 @@ const CartDrawer = ({ checkoutPath = "/checkout" }: { checkoutPath?: string }) =
               </div>
             )}
 
+            {/* Stock warning */}
+            {hasStockIssues && (
+              <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-3 flex items-start gap-2">
+                <AlertTriangle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
+                <p className="text-xs text-destructive">Some items exceed available stock. Reduce quantity to proceed.</p>
+              </div>
+            )}
+
             <div className="flex-1 space-y-2 overflow-y-auto py-3">
               <AnimatePresence>
-                {items.map((item) => (
-                  <motion.div
-                    key={item.id}
-                    layout
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    className="flex items-center gap-3 rounded-xl border bg-card p-3"
-                  >
-                    {item.image_url && (
-                      <img src={item.image_url} alt={item.name} className="h-14 w-14 rounded-lg object-cover" loading="lazy" />
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="truncate text-sm font-medium">{item.name}</p>
-                      <p className="text-xs text-muted-foreground">{item.unit}</p>
-                      <p className="text-sm font-semibold text-primary">₹{item.price * item.quantity}</p>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Button variant="outline" size="icon" className="h-7 w-7 rounded-lg" onClick={() => updateQuantity(item.id, item.quantity - 1)}>
-                        <Minus className="h-3 w-3" />
+                {items.map((item) => {
+                  const stock = getStock(item.id);
+                  const overStock = item.quantity > stock;
+                  return (
+                    <motion.div
+                      key={item.id}
+                      layout
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      className={`flex items-center gap-3 rounded-xl border p-3 ${overStock ? "border-destructive/40 bg-destructive/5" : "bg-card"}`}
+                    >
+                      {item.image_url && (
+                        <img src={item.image_url} alt={item.name} className="h-14 w-14 rounded-lg object-cover" loading="lazy" />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="truncate text-sm font-medium">{item.name}</p>
+                        <p className="text-xs text-muted-foreground">{item.unit}</p>
+                        <p className="text-sm font-semibold text-primary">₹{item.price * item.quantity}</p>
+                        {overStock && (
+                          <p className="text-[10px] text-destructive font-medium">Only {stock} available</p>
+                        )}
+                        {stock !== Infinity && stock > 0 && !overStock && stock <= 10 && (
+                          <p className="text-[10px] text-amber-600 font-medium">Only {stock} left</p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Button variant="outline" size="icon" className="h-7 w-7 rounded-lg" onClick={() => updateQuantity(item.id, item.quantity - 1)}>
+                          <Minus className="h-3 w-3" />
+                        </Button>
+                        <span className={`w-6 text-center text-sm font-medium ${overStock ? "text-destructive" : ""}`}>{item.quantity}</span>
+                        <Button variant="outline" size="icon" className="h-7 w-7 rounded-lg" disabled={item.quantity >= stock} onClick={() => updateQuantity(item.id, item.quantity + 1)}>
+                          <Plus className="h-3 w-3" />
+                        </Button>
+                      </div>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" onClick={() => removeItem(item.id)}>
+                        <Trash2 className="h-3 w-3" />
                       </Button>
-                      <span className="w-6 text-center text-sm font-medium">{item.quantity}</span>
-                      <Button variant="outline" size="icon" className="h-7 w-7 rounded-lg" onClick={() => updateQuantity(item.id, item.quantity + 1)}>
-                        <Plus className="h-3 w-3" />
-                      </Button>
-                    </div>
-                    <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive hover:text-destructive" onClick={() => removeItem(item.id)}>
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </motion.div>
-                ))}
+                    </motion.div>
+                  );
+                })}
               </AnimatePresence>
             </div>
 
@@ -106,9 +145,10 @@ const CartDrawer = ({ checkoutPath = "/checkout" }: { checkoutPath?: string }) =
               <Button
                 className="w-full rounded-xl shadow-lg shadow-primary/20"
                 size="lg"
+                disabled={hasStockIssues}
                 onClick={() => { setOpen(false); navigate(checkoutPath); }}
               >
-                Proceed to Checkout → ₹{total}
+                {hasStockIssues ? "Fix stock issues to proceed" : `Proceed to Checkout → ₹${total}`}
               </Button>
             </div>
           </>
