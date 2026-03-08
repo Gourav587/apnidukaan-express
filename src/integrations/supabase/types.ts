@@ -291,6 +291,7 @@ export type Database = {
           image_url: string | null
           is_active: boolean
           min_wholesale_qty: number
+          mrp: number | null
           name: string
           price: number
           stock: number
@@ -307,6 +308,7 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean
           min_wholesale_qty?: number
+          mrp?: number | null
           name: string
           price?: number
           stock?: number
@@ -323,6 +325,7 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean
           min_wholesale_qty?: number
+          mrp?: number | null
           name?: string
           price?: number
           stock?: number

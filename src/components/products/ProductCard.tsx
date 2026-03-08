@@ -9,6 +9,7 @@ interface ProductCardProps {
   id: string;
   name: string;
   price: number;
+  mrp?: number | null;
   unit: string;
   image_url: string | null;
   stock: number;
@@ -16,7 +17,7 @@ interface ProductCardProps {
 
 import { forwardRef } from "react";
 
-const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(({ id, name, price, unit, image_url, stock }, ref) => {
+const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(({ id, name, price, mrp, unit, image_url, stock }, ref) => {
   const addItem = useCartStore((s) => s.addItem);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
   const itemInCart = useCartStore((s) => s.items.find((i) => i.id === id));
@@ -73,7 +74,12 @@ const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(({ id, name, pr
         </Link>
         <p className="mt-0.5 text-xs text-muted-foreground">{unit}</p>
         <div className="mt-auto flex items-center justify-between pt-2">
-          <span className="font-heading text-lg font-bold text-primary">₹{price}</span>
+          <div className="flex items-baseline gap-1.5">
+            <span className="font-heading text-lg font-bold text-primary">₹{price}</span>
+            {mrp && mrp > price && (
+              <span className="text-xs text-muted-foreground line-through">₹{mrp}</span>
+            )}
+          </div>
           <AnimatePresence mode="wait">
             {itemInCart ? (
               <motion.div

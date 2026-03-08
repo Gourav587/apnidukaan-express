@@ -200,6 +200,7 @@ const Index = () => {
                   id={product.id}
                   name={product.name}
                   price={product.price}
+                  mrp={product.mrp}
                   unit={product.unit}
                   image_url={product.image_url}
                   stock={product.stock}
