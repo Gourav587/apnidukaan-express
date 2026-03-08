@@ -164,6 +164,7 @@ const Header = () => {
               <Link to="/" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent transition-colors">Home</Link>
               <Link to="/products" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent transition-colors">Products</Link>
               <Link to="/orders" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent transition-colors">My Orders</Link>
+              <Link to="/wishlist" onClick={() => setMenuOpen(false)} className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent transition-colors">❤️ Wishlist</Link>
               {user ? (
                 <button onClick={() => { handleLogout(); setMenuOpen(false); }} className="rounded-lg px-3 py-2 text-sm font-medium text-left text-destructive hover:bg-accent transition-colors">
                   Logout
