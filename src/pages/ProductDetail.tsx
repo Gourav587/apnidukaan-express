@@ -206,7 +206,7 @@ const ProductDetail = () => {
 
           {/* Delivery info */}
           <div className="mt-6 space-y-2 text-sm text-muted-foreground">
-            <p>🚚 Free delivery on orders above ₹100</p>
+            <p>🚚 Free delivery on orders above ₹500</p>
             <p>⏱️ 30-minute delivery in Dinanagar area</p>
             <p>💵 Cash on Delivery available</p>
           </div>
