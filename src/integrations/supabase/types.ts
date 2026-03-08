@@ -38,6 +38,81 @@ export type Database = {
         }
         Relationships: []
       }
+      khata_customers: {
+        Row: {
+          address: string | null
+          balance: number
+          created_at: string
+          id: string
+          name: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          balance?: number
+          created_at?: string
+          id?: string
+          name: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          balance?: number
+          created_at?: string
+          id?: string
+          name?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      khata_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          customer_id: string
+          description: string | null
+          id: string
+          order_id: string | null
+          type: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          customer_id: string
+          description?: string | null
+          id?: string
+          order_id?: string | null
+          type: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          customer_id?: string
+          description?: string | null
+          id?: string
+          order_id?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "khata_transactions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "khata_customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "khata_transactions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ledger: {
         Row: {
           amount: number
