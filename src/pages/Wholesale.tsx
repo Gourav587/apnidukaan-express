@@ -604,9 +604,11 @@ const WholesaleProductRow = ({ product }: { product: any }) => {
           </p>
         )}
 
-        {/* Stock warning */}
+        {/* Limit warning */}
         {!isOutOfStock && atMaxStock && (
-          <p className="text-[10px] text-destructive mt-1">⚠️ Max stock reached ({stock} available)</p>
+          <p className="text-[10px] text-destructive mt-1">
+            ⚠️ {maxQty && currentQty >= maxQty ? `Max ${maxQty} per order` : `Max stock reached (${stock} available)`}
+          </p>
         )}
 
         {/* MOQ warning */}
