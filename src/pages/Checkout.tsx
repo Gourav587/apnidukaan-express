@@ -589,7 +589,7 @@ const Checkout = () => {
                   type="submit"
                   size="lg"
                   className="w-full rounded-xl gap-2 text-base shadow-lg shadow-primary/20"
-                  disabled={loading}
+                  disabled={loading || hasStockViolations}
                   onClick={handleSubmit}
                 >
                   {loading ? (
