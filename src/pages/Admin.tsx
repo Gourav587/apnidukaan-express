@@ -308,6 +308,134 @@ const Admin = () => {
             </Table>
           </div>
         </TabsContent>
+
+        {/* Wholesale Tab */}
+        <TabsContent value="wholesale">
+          <div className="space-y-6">
+            {/* Wholesale Customers */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-heading font-semibold flex items-center gap-2"><Users className="h-4 w-4" /> Wholesale Customers</h3>
+              </div>
+              <div className="rounded-xl border bg-card overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Customer</TableHead>
+                      <TableHead>Phone</TableHead>
+                      <TableHead>Village</TableHead>
+                      <TableHead className="text-right">Balance</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {wholesaleCustomers?.length === 0 && (
+                      <TableRow><TableCell colSpan={4} className="text-center py-8 text-muted-foreground">No wholesale customers yet</TableCell></TableRow>
+                    )}
+                    {wholesaleCustomers?.map((c: any) => {
+                      const customerLedger = allLedger?.filter((l: any) => l.user_id === c.user_id) || [];
+                      const balance = customerLedger[0]?.balance || 0;
+                      return (
+                        <TableRow key={c.id}>
+                          <TableCell className="font-medium">{c.name || "—"}</TableCell>
+                          <TableCell className="text-sm">{c.phone || "—"}</TableCell>
+                          <TableCell className="text-sm">{c.village || "—"}</TableCell>
+                          <TableCell className={`text-right font-semibold ${balance > 0 ? "text-destructive" : "text-secondary"}`}>
+                            ₹{Math.abs(balance)}
+                            {balance > 0 && <span className="text-xs ml-1">(due)</span>}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+
+            {/* Ledger Entries */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-heading font-semibold flex items-center gap-2"><BookOpen className="h-4 w-4" /> Ledger Entries</h3>
+                <Dialog open={ledgerDialogOpen} onOpenChange={setLedgerDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="rounded-xl gap-1" size="sm"><Plus className="h-4 w-4" /> Add Entry</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader><DialogTitle>Add Ledger Entry</DialogTitle></DialogHeader>
+                    <form onSubmit={(e) => { e.preventDefault(); addLedgerEntry.mutate(ledgerForm); }} className="space-y-3">
+                      <div>
+                        <Label>Customer</Label>
+                        <Select value={ledgerForm.user_id} onValueChange={(v) => setLedgerForm({ ...ledgerForm, user_id: v })}>
+                          <SelectTrigger className="rounded-xl mt-1"><SelectValue placeholder="Select customer" /></SelectTrigger>
+                          <SelectContent>
+                            {wholesaleCustomers?.map((c: any) => (
+                              <SelectItem key={c.user_id} value={c.user_id}>{c.name || c.phone || c.user_id.slice(0, 8)}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label>Type</Label>
+                        <Select value={ledgerForm.type} onValueChange={(v) => setLedgerForm({ ...ledgerForm, type: v })}>
+                          <SelectTrigger className="rounded-xl mt-1"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="debit">Debit (Order/Purchase)</SelectItem>
+                            <SelectItem value="payment">Payment Received</SelectItem>
+                            <SelectItem value="credit">Credit Adjustment</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label>Amount (₹)</Label>
+                        <Input type="number" className="rounded-xl mt-1" value={ledgerForm.amount} onChange={(e) => setLedgerForm({ ...ledgerForm, amount: e.target.value })} required />
+                      </div>
+                      <div>
+                        <Label>Description</Label>
+                        <Input className="rounded-xl mt-1" placeholder="e.g. Order #abc, Payment received" value={ledgerForm.description} onChange={(e) => setLedgerForm({ ...ledgerForm, description: e.target.value })} />
+                      </div>
+                      <Button type="submit" className="w-full rounded-xl" disabled={!ledgerForm.user_id || !ledgerForm.amount}>Add Entry</Button>
+                    </form>
+                  </DialogContent>
+                </Dialog>
+              </div>
+              <div className="rounded-xl border bg-card overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Customer</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Description</TableHead>
+                      <TableHead className="text-right">Amount</TableHead>
+                      <TableHead className="text-right">Balance</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {!allLedger?.length && (
+                      <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">No entries yet</TableCell></TableRow>
+                    )}
+                    {allLedger?.map((entry: any) => {
+                      const customer = wholesaleCustomers?.find((c: any) => c.user_id === entry.user_id);
+                      return (
+                        <TableRow key={entry.id}>
+                          <TableCell className="text-xs">{format(new Date(entry.created_at), "dd MMM, hh:mm a")}</TableCell>
+                          <TableCell className="text-sm font-medium">{customer?.name || entry.user_id.slice(0, 8)}</TableCell>
+                          <TableCell>
+                            <Badge variant={entry.type === "payment" ? "secondary" : entry.type === "debit" ? "destructive" : "default"} className="rounded-full text-xs">
+                              {entry.type}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-sm">{entry.description || "—"}</TableCell>
+                          <TableCell className="text-right font-medium">₹{entry.amount}</TableCell>
+                          <TableCell className="text-right font-semibold">₹{entry.balance}</TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          </div>
+        </TabsContent>
       </Tabs>
     </div>
   );
