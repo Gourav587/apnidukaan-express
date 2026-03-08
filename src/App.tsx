@@ -44,6 +44,7 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
             </Route>
             <Route path="/admin" element={<Admin />} />
+            <Route path="/admin-login" element={<AdminLogin />} />
             <Route path="/wholesale" element={<Wholesale />} />
             <Route path="/wholesale-checkout" element={<WholesaleCheckout />} />
             <Route path="*" element={<NotFound />} />
