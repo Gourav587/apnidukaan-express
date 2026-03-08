@@ -374,7 +374,7 @@ function BillDialog({
           {/* Payment Method */}
           <div>
             <Label className="text-xs font-semibold">Payment Method</Label>
-            <div className="grid grid-cols-4 gap-2 mt-1">
+            <div className="grid grid-cols-5 gap-2 mt-1">
               {PAYMENT_METHODS.map((m) => (
                 <Button
                   key={m.value}
@@ -388,6 +388,24 @@ function BillDialog({
               ))}
             </div>
           </div>
+
+          {/* Khata Customer Selection */}
+          {paymentMethod === "credit" && (
+            <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-3 space-y-2">
+              <Label className="text-xs font-semibold text-destructive">Select Khata Customer *</Label>
+              <Select value={selectedKhataCustomer} onValueChange={handleKhataSelect}>
+                <SelectTrigger className="rounded-xl"><SelectValue placeholder="Choose customer" /></SelectTrigger>
+                <SelectContent>
+                  {(khataCustomers || []).map((c: any) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name} {c.phone ? `(${c.phone})` : ""} — Balance: ₹{Number(c.balance).toFixed(0)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-[11px] text-muted-foreground">Amount will be added to customer's credit balance</p>
+            </div>
+          )}
 
           {/* Add Product */}
           <div className="rounded-xl border p-3 space-y-3">
