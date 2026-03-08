@@ -18,6 +18,7 @@ const Orders = lazy(() => import("./pages/Orders"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Admin = lazy(() => import("./pages/Admin"));
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
+const AdminSetup = lazy(() => import("./pages/AdminSetup"));
 const Wholesale = lazy(() => import("./pages/Wholesale"));
 const WholesaleRegister = lazy(() => import("./pages/WholesaleRegister"));
 const WholesaleCheckout = lazy(() => import("./pages/WholesaleCheckout"));
@@ -59,6 +60,7 @@ const App = () => (
               </Route>
               <Route path="/admin/*" element={<Admin />} />
               <Route path="/admin-login" element={<AdminLogin />} />
+              <Route path="/admin-setup" element={<AdminSetup />} />
               <Route path="/wholesale" element={<Wholesale />} />
               <Route path="/wholesale-register" element={<WholesaleRegister />} />
               <Route path="/wholesale-checkout" element={<WholesaleCheckout />} />
