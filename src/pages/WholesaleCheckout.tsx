@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCartStore } from "@/lib/cart-store";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,8 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { ArrowLeft, ShoppingBag, AlertTriangle, ChevronUp, ChevronDown, MapPin } from "lucide-react";
+import { ArrowLeft, ShoppingBag, AlertTriangle, ChevronUp, ChevronDown, MapPin, Check, Trash2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { motion, AnimatePresence } from "framer-motion";
 
 const PAYMENT_METHODS = [
@@ -24,6 +25,7 @@ const MIN_ORDER = 2000;
 const WholesaleCheckout = () => {
   const { items, subtotal, clearCart } = useCartStore();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [loading, setLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("credit");
   const [partialAmount, setPartialAmount] = useState("");
@@ -31,15 +33,20 @@ const WholesaleCheckout = () => {
   const [showMobileSummary, setShowMobileSummary] = useState(false);
   const [addressForm, setAddressForm] = useState({ name: "", phone: "", address: "", village: "" });
   const [addressErrors, setAddressErrors] = useState<Record<string, string>>({});
+  const [userId, setUserId] = useState<string | null>(null);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [deletingAddressId, setDeletingAddressId] = useState<string | null>(null);
+  const [saveAddress, setSaveAddress] = useState(false);
   const submittingRef = useRef(false);
 
   const VILLAGES = ["Dinanagar", "Awankha", "Taragarh", "Kahnuwan", "Other"];
 
-  // Prefill address from profile
+  // Load user and prefill from profile
   useEffect(() => {
     const loadProfile = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
+      setUserId(user.id);
       const { data: profile } = await supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle();
       if (profile) {
         setAddressForm({
@@ -52,6 +59,49 @@ const WholesaleCheckout = () => {
     };
     loadProfile();
   }, []);
+
+  // Fetch saved addresses
+  const { data: savedAddresses } = useQuery({
+    queryKey: ["saved-addresses", userId],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("saved_addresses").select("*").eq("user_id", userId!).order("is_default", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!userId,
+  });
+
+  // Auto-select default address
+  useEffect(() => {
+    if (savedAddresses && savedAddresses.length > 0 && !selectedAddressId) {
+      const defaultAddr = savedAddresses.find((a: any) => a.is_default) || savedAddresses[0];
+      selectAddress(defaultAddr);
+    }
+  }, [savedAddresses]);
+
+  const selectAddress = (addr: any) => {
+    setSelectedAddressId(addr.id);
+    setAddressForm({ name: addr.name, phone: addr.phone, address: addr.address, village: addr.village });
+    setAddressErrors({});
+  };
+
+  const handleDeleteAddress = async (addrId: string) => {
+    setDeletingAddressId(addrId);
+    try {
+      const { error } = await supabase.from("saved_addresses").delete().eq("id", addrId);
+      if (error) throw error;
+      if (selectedAddressId === addrId) {
+        setSelectedAddressId(null);
+        setAddressForm({ name: "", phone: "", address: "", village: "" });
+      }
+      queryClient.invalidateQueries({ queryKey: ["saved-addresses", userId] });
+      toast.success("Address removed");
+    } catch {
+      toast.error("Failed to delete address");
+    } finally {
+      setDeletingAddressId(null);
+    }
+  };
 
   const { data: products } = useQuery({
     queryKey: ["products-moq-stock"],
@@ -140,6 +190,15 @@ const WholesaleCheckout = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { navigate("/auth?redirect=/wholesale-checkout"); return; }
 
+      // Save address if requested
+      if (saveAddress && !selectedAddressId) {
+        await supabase.from("saved_addresses").insert({
+          user_id: user.id, name: addressForm.name, phone: addressForm.phone,
+          address: addressForm.address, village: addressForm.village,
+          is_default: !savedAddresses || savedAddresses.length === 0,
+        });
+      }
+
       const orderPayload = {
         user_id: user.id,
         items: items.map((i) => ({ id: i.id, name: i.name, price: i.price, quantity: i.quantity, unit: i.unit })),
@@ -195,6 +254,40 @@ const WholesaleCheckout = () => {
       <div className="container py-4 md:py-10">
         <div className="grid gap-4 md:gap-8 lg:grid-cols-5">
           <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4 lg:col-span-3" id="wholesale-checkout-form">
+            {/* Saved Addresses */}
+            {savedAddresses && savedAddresses.length > 0 && (
+              <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="rounded-xl border bg-card p-4 md:p-5 space-y-2 md:space-y-3">
+                <h2 className="font-heading font-semibold text-sm flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-primary" /> Saved Addresses
+                </h2>
+                <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide sm:grid sm:grid-cols-2 sm:overflow-visible">
+                  {savedAddresses.map((addr: any) => (
+                    <div key={addr.id}
+                      className={`relative flex-shrink-0 w-56 sm:w-auto rounded-xl border p-3 text-sm transition-all cursor-pointer group ${
+                        selectedAddressId === addr.id ? "border-primary bg-primary/5 ring-1 ring-primary" : "hover:border-primary/30 hover:bg-muted/30"
+                      }`}
+                      onClick={() => selectAddress(addr)}>
+                      <button type="button" onClick={(e) => { e.stopPropagation(); handleDeleteAddress(addr.id); }}
+                        disabled={deletingAddressId === addr.id}
+                        className="absolute right-2 top-2 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity p-1 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive">
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-medium text-[10px] uppercase tracking-wider bg-muted px-2 py-0.5 rounded-full">{addr.label}</span>
+                        {addr.is_default && <span className="text-[10px] text-primary font-medium">Default</span>}
+                      </div>
+                      <p className="font-medium truncate">{addr.name}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5 truncate">{addr.address}, {addr.village}</p>
+                      <p className="text-xs text-muted-foreground">{addr.phone}</p>
+                      {selectedAddressId === addr.id && (
+                        <div className="absolute right-2 bottom-2"><Check className="h-4 w-4 text-primary" /></div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
             {/* Delivery Address */}
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
               className="rounded-xl border bg-card p-4 md:p-6 space-y-3 md:space-y-4">
@@ -205,26 +298,26 @@ const WholesaleCheckout = () => {
                 <div>
                   <Label className="text-xs font-medium text-muted-foreground">Full Name *</Label>
                   <Input placeholder="Your name" className={`rounded-xl mt-1 h-11 ${addressErrors.name ? "border-destructive" : ""}`}
-                    value={addressForm.name} onChange={(e) => { setAddressForm(f => ({ ...f, name: e.target.value })); setAddressErrors(e2 => ({ ...e2, name: "" })); }} />
+                    value={addressForm.name} onChange={(e) => { setAddressForm(f => ({ ...f, name: e.target.value })); setAddressErrors(e2 => ({ ...e2, name: "" })); if (selectedAddressId) setSelectedAddressId(null); }} />
                   {addressErrors.name && <p className="text-xs text-destructive mt-1">{addressErrors.name}</p>}
                 </div>
                 <div>
                   <Label className="text-xs font-medium text-muted-foreground">Phone Number *</Label>
                   <Input placeholder="9876543210" inputMode="numeric" maxLength={10}
                     className={`rounded-xl mt-1 h-11 ${addressErrors.phone ? "border-destructive" : ""}`}
-                    value={addressForm.phone} onChange={(e) => { setAddressForm(f => ({ ...f, phone: e.target.value })); setAddressErrors(e2 => ({ ...e2, phone: "" })); }} />
+                    value={addressForm.phone} onChange={(e) => { setAddressForm(f => ({ ...f, phone: e.target.value })); setAddressErrors(e2 => ({ ...e2, phone: "" })); if (selectedAddressId) setSelectedAddressId(null); }} />
                   {addressErrors.phone && <p className="text-xs text-destructive mt-1">{addressErrors.phone}</p>}
                 </div>
               </div>
               <div>
                 <Label className="text-xs font-medium text-muted-foreground">Delivery Address *</Label>
                 <Input placeholder="Shop address, Street, Landmark" className={`rounded-xl mt-1 h-11 ${addressErrors.address ? "border-destructive" : ""}`}
-                  value={addressForm.address} onChange={(e) => { setAddressForm(f => ({ ...f, address: e.target.value })); setAddressErrors(e2 => ({ ...e2, address: "" })); }} />
+                  value={addressForm.address} onChange={(e) => { setAddressForm(f => ({ ...f, address: e.target.value })); setAddressErrors(e2 => ({ ...e2, address: "" })); if (selectedAddressId) setSelectedAddressId(null); }} />
                 {addressErrors.address && <p className="text-xs text-destructive mt-1">{addressErrors.address}</p>}
               </div>
               <div>
                 <Label className="text-xs font-medium text-muted-foreground">Village/Area *</Label>
-                <Select value={addressForm.village} onValueChange={(v) => { setAddressForm(f => ({ ...f, village: v })); setAddressErrors(e2 => ({ ...e2, village: "" })); }}>
+                <Select value={addressForm.village} onValueChange={(v) => { setAddressForm(f => ({ ...f, village: v })); setAddressErrors(e2 => ({ ...e2, village: "" })); if (selectedAddressId) setSelectedAddressId(null); }}>
                   <SelectTrigger className={`rounded-xl mt-1 h-11 ${addressErrors.village ? "border-destructive" : ""}`}><SelectValue placeholder="Select area" /></SelectTrigger>
                   <SelectContent>
                     {VILLAGES.map((v) => <SelectItem key={v} value={v}>{v}</SelectItem>)}
@@ -232,6 +325,14 @@ const WholesaleCheckout = () => {
                 </Select>
                 {addressErrors.village && <p className="text-xs text-destructive mt-1">{addressErrors.village}</p>}
               </div>
+              {!selectedAddressId && addressForm.name && addressForm.address && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="overflow-hidden">
+                  <div className="flex items-center gap-2 pt-1">
+                    <Checkbox id="save-ws-address" checked={saveAddress} onCheckedChange={(v) => setSaveAddress(!!v)} />
+                    <label htmlFor="save-ws-address" className="text-sm text-muted-foreground cursor-pointer">Save this address</label>
+                  </div>
+                </motion.div>
+              )}
             </motion.div>
 
             {/* Payment Method */}
