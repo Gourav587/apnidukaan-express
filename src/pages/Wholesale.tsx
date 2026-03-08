@@ -15,6 +15,7 @@ import ProductSkeleton from "@/components/products/ProductSkeleton";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { toast } from "sonner";
+import CartDrawer from "@/components/cart/CartDrawer";
 
 const Wholesale = () => {
   const navigate = useNavigate();
