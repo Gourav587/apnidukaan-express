@@ -24,9 +24,9 @@ const Footer = () => (
         <div>
           <h4 className="font-heading font-semibold mb-3">Contact</h4>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li className="flex items-center gap-2"><Phone className="h-4 w-4 text-primary shrink-0" /> +91 78889 18171</li>
-            <li className="flex items-center gap-2"><MapPin className="h-4 w-4 text-primary shrink-0" /> Main Bazaar, Dinanagar, Punjab</li>
-            <li className="flex items-center gap-2"><Clock className="h-4 w-4 text-primary shrink-0" /> 8 AM – 9 PM Daily</li>
+            <li className="flex items-center gap-2"><Phone className="h-4 w-4 text-primary shrink-0" /> +91 98882 46069</li>
+            <li className="flex items-start gap-2"><MapPin className="h-4 w-4 text-primary shrink-0 mt-0.5" /> Hari Dass Satya Pal, Near Railway Road, Dinanagar</li>
+            <li className="flex items-center gap-2"><Clock className="h-4 w-4 text-primary shrink-0" /> 9 AM – 8 PM Daily</li>
           </ul>
         </div>
         <div>
