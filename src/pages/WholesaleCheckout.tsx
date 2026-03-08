@@ -259,11 +259,7 @@ const WholesaleCheckout = () => {
 
       clearCart();
       toast.success("Wholesale order placed! 🎉");
-
-      const STORE_PHONE = "917888918171";
-      const itemsList = items.map((i) => `• ${i.name} × ${i.quantity}`).join("\n");
-      const whatsappMsg = `🏪 *Wholesale Order on ApniDukaan!*\n\n👤 ${addressForm.name}\n📞 ${addressForm.phone}\n📍 ${addressForm.address}, ${addressForm.village}\n🕐 ${deliverySlot}\n💳 Payment: ${paymentMethod}\n\n*Items:*\n${itemsList}\n\n💰 *Total: ₹${total}*${creditAmount > 0 ? `\n📒 Credit: ₹${creditAmount}` : ""}${notes ? `\n📝 Notes: ${notes}` : ""}`;
-      window.open(`https://wa.me/${STORE_PHONE}?text=${encodeURIComponent(whatsappMsg)}`, "_blank");
+      navigate("/wholesale");
       navigate("/wholesale");
     } catch (err: any) {
       toast.error(err.message || "Failed to place order");

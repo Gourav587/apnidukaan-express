@@ -39,7 +39,7 @@ const Layout = () => {
       </main>
       <Footer />
       <CartDrawer />
-      <WhatsAppButton />
+      
       <MobileBottomNav />
       <NotificationPrompt />
       <AIChatbot />
