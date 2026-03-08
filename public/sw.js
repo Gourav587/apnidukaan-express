@@ -1,10 +1,13 @@
-const CACHE_NAME = "apnidukaan-v1";
+const CACHE_NAME = "apnidukaan-v2";
 const STATIC_ASSETS = [
   "/",
   "/manifest.json",
   "/favicon.ico",
   "/icons/icon-192.png",
   "/icons/icon-512.png",
+  "/admin",
+  "/admin-login",
+  "/wholesale",
 ];
 
 // Install — cache static assets
@@ -41,7 +44,17 @@ self.addEventListener("fetch", (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
           return response;
         })
-        .catch(() => caches.match("/"))
+        .catch(() => {
+          // Serve cached version of the requested page, or fallback to appropriate route
+          const url = new URL(request.url);
+          if (url.pathname.startsWith("/admin")) {
+            return caches.match("/admin") || caches.match("/");
+          }
+          if (url.pathname.startsWith("/wholesale")) {
+            return caches.match("/wholesale") || caches.match("/");
+          }
+          return caches.match("/");
+        })
     );
     return;
   }
