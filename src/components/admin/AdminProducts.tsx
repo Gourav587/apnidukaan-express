@@ -16,7 +16,7 @@ import { Plus, Pencil, Trash2, Search } from "lucide-react";
 const ProductForm = ({ product, categories, onSave }: any) => {
   const [form, setForm] = useState(product || {
     name: "", price: 0, mrp: 0, wholesale_price: 0, stock: 0, unit: "1 kg",
-    category_id: "", image_url: "", is_active: true, description: "", min_wholesale_qty: 1,
+    category_id: "", image_url: "", is_active: true, description: "", min_wholesale_qty: 1, max_wholesale_qty: null,
     bulk_discount_tiers: [],
   });
   const [bulkTier, setBulkTier] = useState({ qty: "", discount: "" });
