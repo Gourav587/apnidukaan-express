@@ -283,6 +283,7 @@ export type Database = {
       }
       products: {
         Row: {
+          bulk_discount_tiers: Json | null
           category_id: string | null
           created_at: string
           description: string | null
@@ -298,6 +299,7 @@ export type Database = {
           wholesale_price: number | null
         }
         Insert: {
+          bulk_discount_tiers?: Json | null
           category_id?: string | null
           created_at?: string
           description?: string | null
@@ -313,6 +315,7 @@ export type Database = {
           wholesale_price?: number | null
         }
         Update: {
+          bulk_discount_tiers?: Json | null
           category_id?: string | null
           created_at?: string
           description?: string | null
