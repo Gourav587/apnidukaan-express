@@ -112,28 +112,13 @@ const ProductDetail = () => {
 
       {/* Product Detail */}
       <div className="grid gap-8 md:grid-cols-2">
-        {/* Image */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="relative aspect-square overflow-hidden rounded-2xl border bg-muted"
-        >
-          {product.image_url ? (
-            <img src={product.image_url} alt={product.name} className="h-full w-full object-cover" />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-6xl">🛍️</div>
-          )}
-          {product.stock <= 0 && (
-            <div className="absolute inset-0 flex items-center justify-center bg-background/80">
-              <span className="rounded-full bg-destructive px-4 py-2 text-sm font-semibold text-destructive-foreground">Out of Stock</span>
-            </div>
-          )}
-          {product.stock > 0 && product.stock <= 10 && (
-            <span className="absolute right-3 top-3 rounded-full bg-destructive/90 px-3 py-1 text-xs font-medium text-destructive-foreground">
-              Only {product.stock} left
-            </span>
-          )}
-        </motion.div>
+        {/* Image Gallery */}
+        <ProductImageGallery
+          mainImage={product.image_url}
+          additionalImages={productImages || []}
+          productName={product.name}
+          stock={product.stock}
+        />
 
         {/* Info */}
         <motion.div
