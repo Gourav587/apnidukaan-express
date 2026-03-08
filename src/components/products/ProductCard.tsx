@@ -31,6 +31,13 @@ const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(({ id, name, pr
       animate={{ opacity: 1, y: 0 }}
       className="group relative flex flex-col overflow-hidden rounded-2xl border bg-card transition-all hover:shadow-lg hover:-translate-y-0.5"
     >
+      {/* Save badge */}
+      {mrp && mrp > price && (
+        <span className="absolute left-2 top-2 z-10 rounded-full bg-secondary px-2 py-0.5 text-[10px] font-bold text-secondary-foreground">
+          Save {Math.round(((mrp - price) / mrp) * 100)}%
+        </span>
+      )}
+
       {/* Wishlist heart */}
       <button
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(id); }}
