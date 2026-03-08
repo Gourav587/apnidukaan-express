@@ -159,7 +159,6 @@ const Checkout = () => {
     );
   }
 
-  const submittingRef = useRef(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
