@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import ProductCard from "@/components/products/ProductCard";
 import ProductReviews from "@/components/products/ProductReviews";
 import ProductImageGallery from "@/components/products/ProductImageGallery";
+import { useWishlist } from "@/hooks/use-wishlist";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
