@@ -1,10 +1,13 @@
-const CACHE_NAME = "apnidukaan-v1";
+const CACHE_NAME = "apnidukaan-v2";
 const STATIC_ASSETS = [
   "/",
   "/manifest.json",
   "/favicon.ico",
   "/icons/icon-192.png",
   "/icons/icon-512.png",
+  "/admin",
+  "/admin-login",
+  "/wholesale",
 ];
 
 // Install — cache static assets
