@@ -46,6 +46,7 @@ const Checkout = () => {
   const [saveAddress, setSaveAddress] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
   const [deletingAddressId, setDeletingAddressId] = useState<string | null>(null);
+  const submittingRef = useRef(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
