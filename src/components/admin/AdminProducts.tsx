@@ -17,10 +17,24 @@ const ProductForm = ({ product, categories, onSave }: any) => {
   const [form, setForm] = useState(product || {
     name: "", price: 0, wholesale_price: 0, stock: 0, unit: "1 kg",
     category_id: "", image_url: "", is_active: true, description: "", min_wholesale_qty: 1,
+    bulk_discount_tiers: [],
   });
+  const [bulkTier, setBulkTier] = useState({ qty: "", discount: "" });
+
+  const addBulkTier = () => {
+    if (!bulkTier.qty || !bulkTier.discount) return;
+    const tiers = [...(form.bulk_discount_tiers || []), { qty: Number(bulkTier.qty), discount_percent: Number(bulkTier.discount) }];
+    setForm({ ...form, bulk_discount_tiers: tiers });
+    setBulkTier({ qty: "", discount: "" });
+  };
+
+  const removeBulkTier = (index: number) => {
+    const tiers = form.bulk_discount_tiers.filter((_: any, i: number) => i !== index);
+    setForm({ ...form, bulk_discount_tiers: tiers });
+  };
 
   return (
-    <form onSubmit={(e) => { e.preventDefault(); onSave({ ...form, price: Number(form.price), wholesale_price: Number(form.wholesale_price), stock: Number(form.stock), min_wholesale_qty: Number(form.min_wholesale_qty) || 1 }); }} className="space-y-4">
+    <form onSubmit={(e) => { e.preventDefault(); onSave({ ...form, price: Number(form.price), wholesale_price: Number(form.wholesale_price), stock: Number(form.stock), min_wholesale_qty: Number(form.min_wholesale_qty) || 1 }); }} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
       <div><Label>Product Name</Label><Input className="rounded-xl mt-1" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></div>
       <div><Label>Description</Label><Textarea className="rounded-xl mt-1" rows={2} value={form.description || ""} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
       <div className="grid grid-cols-3 gap-3">
@@ -39,6 +53,27 @@ const ProductForm = ({ product, categories, onSave }: any) => {
         </div>
         <div><Label>Min Wholesale Qty</Label><Input type="number" min="1" className="rounded-xl mt-1" value={form.min_wholesale_qty || 1} onChange={(e) => setForm({ ...form, min_wholesale_qty: e.target.value })} /></div>
       </div>
+      
+      {/* Bulk Discount Tiers */}
+      <div className="rounded-lg border p-3 space-y-2">
+        <Label className="text-xs font-semibold">Bulk Discount Tiers</Label>
+        {form.bulk_discount_tiers?.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {form.bulk_discount_tiers.map((tier: any, i: number) => (
+              <Badge key={i} variant="secondary" className="gap-1 cursor-pointer" onClick={() => removeBulkTier(i)}>
+                {tier.qty}+ = {tier.discount_percent}% ✕
+              </Badge>
+            ))}
+          </div>
+        )}
+        <div className="flex gap-2 items-end">
+          <div className="flex-1"><Label className="text-[10px]">Qty ≥</Label><Input type="number" className="rounded-xl mt-1 h-8" placeholder="50" value={bulkTier.qty} onChange={(e) => setBulkTier({ ...bulkTier, qty: e.target.value })} /></div>
+          <div className="flex-1"><Label className="text-[10px]">Discount %</Label><Input type="number" className="rounded-xl mt-1 h-8" placeholder="5" value={bulkTier.discount} onChange={(e) => setBulkTier({ ...bulkTier, discount: e.target.value })} /></div>
+          <Button type="button" size="sm" variant="outline" className="h-8 rounded-lg" onClick={addBulkTier}>Add</Button>
+        </div>
+        <p className="text-[10px] text-muted-foreground">e.g. Buy 50+ get 5% off, 100+ get 10% off</p>
+      </div>
+
       <div><Label>Image URL</Label><Input className="rounded-xl mt-1" value={form.image_url || ""} onChange={(e) => setForm({ ...form, image_url: e.target.value })} /></div>
       <div className="flex items-center gap-2">
         <Switch checked={form.is_active} onCheckedChange={(v) => setForm({ ...form, is_active: v })} />
