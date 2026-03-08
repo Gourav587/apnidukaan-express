@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Receipt, Plus, Trash2, Eye, Download, Search, IndianRupee, ShoppingBag, Pencil, CreditCard, Smartphone, Banknote } from "lucide-react";
+import { Receipt, Plus, Trash2, Eye, Download, Search, IndianRupee, ShoppingBag, Pencil, CreditCard, Smartphone, Banknote, Wallet } from "lucide-react";
 import { format } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
 
