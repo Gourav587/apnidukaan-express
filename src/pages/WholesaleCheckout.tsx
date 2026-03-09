@@ -260,7 +260,6 @@ const WholesaleCheckout = () => {
       clearCart();
       toast.success("Wholesale order placed! 🎉");
       navigate("/wholesale");
-      navigate("/wholesale");
     } catch (err: any) {
       toast.error(err.message || "Failed to place order");
     } finally {
