@@ -30,8 +30,26 @@ const AdminSetup = () => {
 
     setLoading(false);
 
-    if (error || data?.error) {
-      toast.error(data?.error || error?.message || "Setup failed");
+    if (error) {
+      // supabase.functions.invoke wraps non-2xx as FunctionsHttpError
+      let msg = "Setup failed";
+      try {
+        const ctx = (error as any).context;
+        if (ctx && typeof ctx.json === "function") {
+          const body = await ctx.json();
+          msg = body?.error || msg;
+        } else if (error.message) {
+          msg = error.message;
+        }
+      } catch {
+        msg = error.message || msg;
+      }
+      toast.error(msg);
+      return;
+    }
+
+    if (data?.error) {
+      toast.error(data.error);
       return;
     }
 
