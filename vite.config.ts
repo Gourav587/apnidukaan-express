@@ -13,6 +13,7 @@ export default defineConfig(({ mode }) => ({
   },
   plugins: [react()],
   optimizeDeps: {
+    exclude: ["@radix-ui/react-tooltip"],
     include: [
       "react",
       "react-dom",
