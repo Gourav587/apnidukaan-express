@@ -38,6 +38,289 @@ export type Database = {
         }
         Relationships: []
       }
+      credit_notes: {
+        Row: {
+          amount: number
+          cgst: number
+          created_at: string
+          credit_note_number: string
+          id: string
+          igst: number
+          invoice_id: string
+          reason: string | null
+          sgst: number
+          status: string
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          cgst?: number
+          created_at?: string
+          credit_note_number: string
+          id?: string
+          igst?: number
+          invoice_id: string
+          reason?: string | null
+          sgst?: number
+          status?: string
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          cgst?: number
+          created_at?: string
+          credit_note_number?: string
+          id?: string
+          igst?: number
+          invoice_id?: string
+          reason?: string | null
+          sgst?: number
+          status?: string
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_notes_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hsn_codes: {
+        Row: {
+          category: string | null
+          description: string
+          gst_rate: Database["public"]["Enums"]["gst_slab"]
+          hsn_code: string
+          id: string
+        }
+        Insert: {
+          category?: string | null
+          description: string
+          gst_rate?: Database["public"]["Enums"]["gst_slab"]
+          hsn_code: string
+          id?: string
+        }
+        Update: {
+          category?: string | null
+          description?: string
+          gst_rate?: Database["public"]["Enums"]["gst_slab"]
+          hsn_code?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      invoice_items: {
+        Row: {
+          cgst: number
+          created_at: string
+          description: string
+          discount: number
+          gst_rate: number
+          hsn_code: string | null
+          id: string
+          igst: number
+          invoice_id: string
+          product_id: string | null
+          quantity: number
+          sgst: number
+          taxable_amount: number
+          total: number
+          unit: string
+          unit_price: number
+          variant_id: string | null
+        }
+        Insert: {
+          cgst?: number
+          created_at?: string
+          description: string
+          discount?: number
+          gst_rate?: number
+          hsn_code?: string | null
+          id?: string
+          igst?: number
+          invoice_id: string
+          product_id?: string | null
+          quantity?: number
+          sgst?: number
+          taxable_amount?: number
+          total?: number
+          unit?: string
+          unit_price?: number
+          variant_id?: string | null
+        }
+        Update: {
+          cgst?: number
+          created_at?: string
+          description?: string
+          discount?: number
+          gst_rate?: number
+          hsn_code?: string | null
+          id?: string
+          igst?: number
+          invoice_id?: string
+          product_id?: string | null
+          quantity?: number
+          sgst?: number
+          taxable_amount?: number
+          total?: number
+          unit?: string
+          unit_price?: number
+          variant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_items_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_items_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoice_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          invoice_id: string
+          notes: string | null
+          payment_date: string
+          payment_method: string
+          reference_number: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          invoice_id: string
+          notes?: string | null
+          payment_date?: string
+          payment_method?: string
+          reference_number?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          invoice_id?: string
+          notes?: string | null
+          payment_date?: string
+          payment_method?: string
+          reference_number?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_payments_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoices: {
+        Row: {
+          amount_paid: number
+          balance_due: number
+          cgst_total: number
+          created_at: string
+          customer_address: string | null
+          customer_gstin: string | null
+          customer_name: string | null
+          customer_phone: string | null
+          discount: number
+          due_date: string | null
+          id: string
+          igst_total: number
+          invoice_date: string
+          invoice_number: string
+          notes: string | null
+          order_id: string | null
+          payment_status: string
+          sgst_total: number
+          subtotal: number
+          taxable_amount: number
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          amount_paid?: number
+          balance_due?: number
+          cgst_total?: number
+          created_at?: string
+          customer_address?: string | null
+          customer_gstin?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          discount?: number
+          due_date?: string | null
+          id?: string
+          igst_total?: number
+          invoice_date?: string
+          invoice_number: string
+          notes?: string | null
+          order_id?: string | null
+          payment_status?: string
+          sgst_total?: number
+          subtotal?: number
+          taxable_amount?: number
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          amount_paid?: number
+          balance_due?: number
+          cgst_total?: number
+          created_at?: string
+          customer_address?: string | null
+          customer_gstin?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          discount?: number
+          due_date?: string | null
+          id?: string
+          igst_total?: number
+          invoice_date?: string
+          invoice_number?: string
+          notes?: string | null
+          order_id?: string | null
+          payment_status?: string
+          sgst_total?: number
+          subtotal?: number
+          taxable_amount?: number
+          total?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       khata_customers: {
         Row: {
           address: string | null
@@ -281,12 +564,70 @@ export type Database = {
           },
         ]
       }
+      product_variants: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          is_default: boolean
+          label: string
+          mrp: number | null
+          price: number
+          product_id: string
+          sku: string | null
+          sort_order: number
+          stock: number
+          updated_at: string
+          wholesale_price: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          label: string
+          mrp?: number | null
+          price?: number
+          product_id: string
+          sku?: string | null
+          sort_order?: number
+          stock?: number
+          updated_at?: string
+          wholesale_price?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          label?: string
+          mrp?: number | null
+          price?: number
+          product_id?: string
+          sku?: string | null
+          sort_order?: number
+          stock?: number
+          updated_at?: string
+          wholesale_price?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_variants_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           bulk_discount_tiers: Json | null
           category_id: string | null
           created_at: string
           description: string | null
+          gst_rate: Database["public"]["Enums"]["gst_slab"]
+          hsn_code: string | null
           id: string
           image_url: string | null
           is_active: boolean
@@ -296,6 +637,7 @@ export type Database = {
           mrp: number | null
           name: string
           price: number
+          product_type: Database["public"]["Enums"]["product_type"]
           stock: number
           unit: string
           updated_at: string
@@ -306,6 +648,8 @@ export type Database = {
           category_id?: string | null
           created_at?: string
           description?: string | null
+          gst_rate?: Database["public"]["Enums"]["gst_slab"]
+          hsn_code?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean
@@ -315,6 +659,7 @@ export type Database = {
           mrp?: number | null
           name: string
           price?: number
+          product_type?: Database["public"]["Enums"]["product_type"]
           stock?: number
           unit?: string
           updated_at?: string
@@ -325,6 +670,8 @@ export type Database = {
           category_id?: string | null
           created_at?: string
           description?: string | null
+          gst_rate?: Database["public"]["Enums"]["gst_slab"]
+          hsn_code?: string | null
           id?: string
           image_url?: string | null
           is_active?: boolean
@@ -334,6 +681,7 @@ export type Database = {
           mrp?: number | null
           name?: string
           price?: number
+          product_type?: Database["public"]["Enums"]["product_type"]
           stock?: number
           unit?: string
           updated_at?: string
@@ -533,6 +881,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_credit_note_number: { Args: never; Returns: string }
+      generate_invoice_number: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -572,6 +922,8 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      gst_slab: "0" | "5" | "12" | "18" | "28"
+      product_type: "loose" | "packed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -700,6 +1052,8 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      gst_slab: ["0", "5", "12", "18", "28"],
+      product_type: ["loose", "packed"],
     },
   },
 } as const
