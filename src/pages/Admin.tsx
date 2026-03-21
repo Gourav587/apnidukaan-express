@@ -17,6 +17,7 @@ import { AdminPOS } from "@/components/admin/AdminPOS";
 import { AdminKhata } from "@/components/admin/AdminKhata";
 import { AdminAnalytics } from "@/components/admin/AdminAnalytics";
 import { AdminSettings } from "@/components/admin/AdminSettings";
+import { AdminBilling } from "@/components/admin/AdminBilling";
 import { useOrderNotifications } from "@/hooks/use-order-notifications";
 
 const Admin = () => {
