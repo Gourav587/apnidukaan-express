@@ -22,6 +22,7 @@ const businessItems = [
   { title: "Delivery", url: "/admin/delivery", icon: Truck },
   { title: "POS Records", url: "/admin/pos", icon: Receipt },
   { title: "Khata", url: "/admin/khata", icon: Wallet },
+  { title: "Billing", url: "/admin/billing", icon: FileText },
 ];
 
 const insightItems = [

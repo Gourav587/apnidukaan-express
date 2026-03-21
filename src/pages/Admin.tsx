@@ -64,6 +64,7 @@ const Admin = () => {
               <Route path="khata" element={<AdminKhata />} />
               <Route path="analytics" element={<AdminAnalytics />} />
               <Route path="settings" element={<AdminSettings />} />
+              <Route path="billing" element={<AdminBilling />} />
             </Routes>
           </main>
         </div>
