@@ -1,15 +1,19 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/lib/cart-store";
-import { ArrowLeft, Minus, Plus, ShoppingCart, Package, Heart } from "lucide-react";
+import { ArrowLeft, Minus, Plus, ShoppingCart, Package, Heart, Tag } from "lucide-react";
 import { motion } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
 import ProductCard from "@/components/products/ProductCard";
 import ProductReviews from "@/components/products/ProductReviews";
 import ProductImageGallery from "@/components/products/ProductImageGallery";
+import VariantSelector from "@/components/products/VariantSelector";
+import AISuggestions from "@/components/products/AISuggestions";
 import { useWishlist } from "@/hooks/use-wishlist";
+import { Badge } from "@/components/ui/badge";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -18,6 +22,7 @@ const ProductDetail = () => {
   const itemInCart = useCartStore((s) => s.items.find((i) => i.id === id));
   const { isInWishlist, toggleWishlist } = useWishlist();
   const wishlisted = id ? isInWishlist(id) : false;
+  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(null);
 
   const { data: product, isLoading } = useQuery({
     queryKey: ["product", id],
@@ -47,6 +52,21 @@ const ProductDetail = () => {
     enabled: !!id,
   });
 
+  const { data: variants } = useQuery({
+    queryKey: ["product-variants", id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("product_variants")
+        .select("*")
+        .eq("product_id", id!)
+        .eq("is_active", true)
+        .order("sort_order");
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!id,
+  });
+
   const { data: relatedProducts } = useQuery({
     queryKey: ["related-products", product?.category_id],
     queryFn: async () => {
@@ -62,6 +82,13 @@ const ProductDetail = () => {
     },
     enabled: !!product?.category_id,
   });
+
+  // Determine active pricing from selected variant or base product
+  const selectedVariant = variants?.find((v) => v.id === selectedVariantId);
+  const activePrice = selectedVariant?.price ?? product?.price ?? 0;
+  const activeMrp = selectedVariant?.mrp ?? product?.mrp ?? null;
+  const activeStock = selectedVariant?.stock ?? product?.stock ?? 0;
+  const activeLabel = selectedVariant?.label ?? product?.unit ?? "";
 
   if (isLoading) {
     return (
@@ -92,7 +119,16 @@ const ProductDetail = () => {
     );
   }
 
-  const handleAdd = () => addItem({ id: product.id, name: product.name, price: product.price, unit: product.unit, image_url: product.image_url });
+  const handleAdd = () => addItem({
+    id: product.id,
+    name: product.name + (selectedVariant ? ` (${selectedVariant.label})` : ""),
+    price: activePrice,
+    unit: activeLabel,
+    image_url: product.image_url,
+  });
+
+  const gstLabel = product.gst_rate ? `${product.gst_rate}% GST` : null;
+  const productTypeLabel = product.product_type === "loose" ? "Loose" : "Packed";
 
   return (
     <div className="container py-6 md:py-10">
@@ -120,7 +156,7 @@ const ProductDetail = () => {
           mainImage={product.image_url}
           additionalImages={productImages || []}
           productName={product.name}
-          stock={product.stock}
+          stock={activeStock}
         />
 
         {/* Info */}
@@ -129,14 +165,30 @@ const ProductDetail = () => {
           animate={{ opacity: 1, x: 0 }}
           className="flex flex-col"
         >
-          {product.categories?.name && (
-            <Link
-              to={`/products?category=${product.categories.name}`}
-              className="mb-2 inline-flex w-fit rounded-full bg-accent px-3 py-1 text-xs font-medium text-accent-foreground hover:bg-accent/80 transition-colors"
-            >
-              {product.categories.name}
-            </Link>
-          )}
+          <div className="flex items-center gap-2 flex-wrap mb-2">
+            {product.categories?.name && (
+              <Link
+                to={`/products?category=${product.categories.name}`}
+                className="inline-flex rounded-full bg-accent px-3 py-1 text-xs font-medium text-accent-foreground hover:bg-accent/80 transition-colors"
+              >
+                {product.categories.name}
+              </Link>
+            )}
+            <Badge variant="outline" className="text-xs">
+              {productTypeLabel}
+            </Badge>
+            {gstLabel && (
+              <Badge variant="secondary" className="text-xs gap-1">
+                <Tag className="h-3 w-3" /> {gstLabel}
+              </Badge>
+            )}
+            {product.hsn_code && (
+              <Badge variant="outline" className="text-xs">
+                HSN: {product.hsn_code}
+              </Badge>
+            )}
+          </div>
+
           <div className="flex items-center justify-between">
             <h1 className="font-heading text-2xl font-bold md:text-3xl">{product.name}</h1>
             <Button
@@ -148,22 +200,31 @@ const ProductDetail = () => {
               <Heart className={`h-5 w-5 ${wishlisted ? "fill-destructive text-destructive" : "text-muted-foreground"}`} />
             </Button>
           </div>
-          <p className="mt-1 text-sm text-muted-foreground">{product.unit}</p>
+          <p className="mt-1 text-sm text-muted-foreground">{activeLabel}</p>
 
           <div className="mt-4 flex items-baseline gap-3">
-            <span className="font-heading text-3xl font-bold text-primary">₹{product.price}</span>
-            {product.mrp && product.mrp > product.price && (
+            <span className="font-heading text-3xl font-bold text-primary">₹{activePrice}</span>
+            {activeMrp && activeMrp > activePrice && (
               <>
-                <span className="text-lg text-muted-foreground line-through">₹{product.mrp}</span>
+                <span className="text-lg text-muted-foreground line-through">₹{activeMrp}</span>
                 <span className="rounded-full bg-secondary/20 px-2 py-0.5 text-xs font-semibold text-secondary">
-                  {Math.round(((product.mrp - product.price) / product.mrp) * 100)}% OFF
+                  {Math.round(((activeMrp - activePrice) / activeMrp) * 100)}% OFF
                 </span>
               </>
             )}
           </div>
 
-          {product.stock > 0 && (
-            <p className="mt-2 text-sm text-secondary font-medium">✓ In Stock ({product.stock} available)</p>
+          {activeStock > 0 && (
+            <p className="mt-2 text-sm text-secondary font-medium">✓ In Stock ({activeStock} available)</p>
+          )}
+
+          {/* Variant Selector */}
+          {variants && variants.length > 0 && (
+            <VariantSelector
+              variants={variants}
+              selectedId={selectedVariantId}
+              onSelect={(v) => setSelectedVariantId(v.id)}
+            />
           )}
 
           {/* Description */}
@@ -177,7 +238,7 @@ const ProductDetail = () => {
           {/* Add to Cart */}
           <div className="mt-6 flex items-center gap-3">
             {(() => {
-              const maxQty = Math.min(product.stock, product.max_retail_qty || 5);
+              const maxQty = Math.min(activeStock, product.max_retail_qty || 5);
               return itemInCart ? (
                 <>
                   <div className="flex items-center gap-2 rounded-xl border bg-muted/50 p-1">
@@ -190,14 +251,14 @@ const ProductDetail = () => {
                     </Button>
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    <p>₹{product.price * itemInCart.quantity} total</p>
+                    <p>₹{activePrice * itemInCart.quantity} total</p>
                     {itemInCart.quantity >= maxQty && (
                       <p className="text-xs text-destructive">Max {maxQty} allowed</p>
                     )}
                   </div>
                 </>
               ) : (
-                <Button size="lg" className="rounded-xl gap-2 flex-1 max-w-xs shadow-lg shadow-primary/20" disabled={product.stock <= 0} onClick={handleAdd}>
+                <Button size="lg" className="rounded-xl gap-2 flex-1 max-w-xs shadow-lg shadow-primary/20" disabled={activeStock <= 0} onClick={handleAdd}>
                   <ShoppingCart className="h-5 w-5" /> Add to Cart
                 </Button>
               );
@@ -217,6 +278,9 @@ const ProductDetail = () => {
       <div className="mt-12">
         <ProductReviews productId={product.id} />
       </div>
+
+      {/* AI Suggestions */}
+      <AISuggestions productId={product.id} />
 
       {/* Related Products */}
       {relatedProducts && relatedProducts.length > 0 && (
