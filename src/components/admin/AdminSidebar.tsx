@@ -84,6 +84,7 @@ export function AdminSidebar() {
       <SidebarContent>
         <NavGroup label="Main" items={mainItems} />
         <NavGroup label="Business" items={businessItems} />
+        <NavGroup label="Accounting" items={accountingItems} />
         <NavGroup label="Insights" items={insightItems} />
       </SidebarContent>
     </Sidebar>
