@@ -11,7 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { Plus, FileText, IndianRupee, Download, Eye, CreditCard, Search } from "lucide-react";
+import { Plus, FileText, IndianRupee, Download, Eye, CreditCard, Search, Printer } from "lucide-react";
+import { downloadInvoicePDF, InvoicePDFData } from "@/lib/generate-invoice-pdf";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Types
