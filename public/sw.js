@@ -1,4 +1,4 @@
-const CACHE_NAME = "apnidukaan-v2";
+const CACHE_NAME = "apnidukaan-v3";
 const STATIC_ASSETS = [
   "/",
   "/manifest.json",
@@ -10,7 +10,6 @@ const STATIC_ASSETS = [
   "/wholesale",
 ];
 
-// Install — cache static assets
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
@@ -18,7 +17,6 @@ self.addEventListener("install", (event) => {
   self.skipWaiting();
 });
 
-// Activate — clean old caches
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
@@ -28,14 +26,26 @@ self.addEventListener("activate", (event) => {
   self.clients.claim();
 });
 
-// Fetch — network first, fallback to cache
 self.addEventListener("fetch", (event) => {
   const { request } = event;
 
-  // Skip non-GET and chrome-extension requests
   if (request.method !== "GET" || request.url.startsWith("chrome-extension")) return;
 
-  // For navigation requests, try network first then cache
+  const url = new URL(request.url);
+  const isRuntimeAsset =
+    request.destination === "script" ||
+    request.destination === "style" ||
+    request.destination === "worker" ||
+    request.destination === "font" ||
+    url.pathname.includes("/node_modules/.vite/") ||
+    url.pathname.includes("/@vite/") ||
+    url.pathname.includes("/src/");
+
+  if (isRuntimeAsset) {
+    event.respondWith(fetch(request));
+    return;
+  }
+
   if (request.mode === "navigate") {
     event.respondWith(
       fetch(request)
@@ -45,8 +55,6 @@ self.addEventListener("fetch", (event) => {
           return response;
         })
         .catch(() => {
-          // Serve cached version of the requested page, or fallback to appropriate route
-          const url = new URL(request.url);
           if (url.pathname.startsWith("/admin")) {
             return caches.match("/admin") || caches.match("/");
           }
@@ -59,13 +67,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // For static assets (images, CSS, JS), cache first then network
-  if (
-    request.destination === "image" ||
-    request.destination === "style" ||
-    request.destination === "script" ||
-    request.destination === "font"
-  ) {
+  if (request.destination === "image") {
     event.respondWith(
       caches.match(request).then(
         (cached) =>
@@ -80,12 +82,10 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // For API calls, network only
   if (request.url.includes("/rest/") || request.url.includes("/functions/")) {
     return;
   }
 
-  // Default: stale-while-revalidate
   event.respondWith(
     caches.match(request).then((cached) => {
       const fetchPromise = fetch(request)
