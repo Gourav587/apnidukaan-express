@@ -195,6 +195,14 @@ export function AdminProducts() {
           </TableBody>
         </Table>
       </div>
+      {variantsProduct && (
+        <AdminProductVariants
+          productId={variantsProduct.id}
+          productName={variantsProduct.name}
+          open={!!variantsProduct}
+          onClose={() => setVariantsProduct(null)}
+        />
+      )}
     </div>
   );
 }
