@@ -11,7 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Layers } from "lucide-react";
+import { AdminProductVariants } from "./AdminProductVariants";
 
 const ProductForm = ({ product, categories, onSave }: any) => {
   const [form, setForm] = useState(product || {
@@ -96,6 +97,7 @@ export function AdminProducts() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<any>(null);
   const [search, setSearch] = useState("");
+  const [variantsProduct, setVariantsProduct] = useState<any>(null);
 
   const { data: products } = useQuery({
     queryKey: ["admin-products"],
@@ -183,6 +185,7 @@ export function AdminProducts() {
                 <TableCell><Badge variant={p.is_active ? "default" : "secondary"} className="rounded-full">{p.is_active ? "Active" : "Inactive"}</Badge></TableCell>
                 <TableCell>
                   <div className="flex gap-1">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" title="Variants" onClick={() => setVariantsProduct(p)}><Layers className="h-3.5 w-3.5" /></Button>
                     <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditing(p); setDialogOpen(true); }}><Pencil className="h-3.5 w-3.5" /></Button>
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => deleteMutation.mutate(p.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
                   </div>
@@ -192,6 +195,14 @@ export function AdminProducts() {
           </TableBody>
         </Table>
       </div>
+      {variantsProduct && (
+        <AdminProductVariants
+          productId={variantsProduct.id}
+          productName={variantsProduct.name}
+          open={!!variantsProduct}
+          onClose={() => setVariantsProduct(null)}
+        />
+      )}
     </div>
   );
 }

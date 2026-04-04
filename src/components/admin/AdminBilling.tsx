@@ -11,7 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { Plus, FileText, IndianRupee, Download, Eye, CreditCard, Search } from "lucide-react";
+import { Plus, FileText, IndianRupee, Download, Eye, CreditCard, Search, Printer } from "lucide-react";
+import { downloadInvoicePDF, InvoicePDFData } from "@/lib/generate-invoice-pdf";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // Types
@@ -579,6 +580,43 @@ const ViewInvoiceDialog = ({ invoice, open, onClose }: { invoice: any; open: boo
             <strong>Notes:</strong> {invoice.notes}
           </div>
         )}
+
+        <div className="flex justify-end">
+          <Button
+            className="rounded-xl gap-2"
+            onClick={() => {
+              downloadInvoicePDF({
+                invoice: {
+                  ...invoice,
+                  subtotal: Number(invoice.subtotal),
+                  discount: Number(invoice.discount),
+                  taxable_amount: Number(invoice.taxable_amount),
+                  cgst_total: Number(invoice.cgst_total),
+                  sgst_total: Number(invoice.sgst_total),
+                  igst_total: Number(invoice.igst_total),
+                  total: Number(invoice.total),
+                  amount_paid: Number(invoice.amount_paid),
+                  balance_due: Number(invoice.balance_due),
+                },
+                items: (items || []).map((it: any) => ({
+                  description: it.description,
+                  hsn_code: it.hsn_code,
+                  quantity: Number(it.quantity),
+                  unit: it.unit,
+                  unit_price: Number(it.unit_price),
+                  discount: Number(it.discount),
+                  taxable_amount: Number(it.taxable_amount),
+                  gst_rate: Number(it.gst_rate),
+                  cgst: Number(it.cgst),
+                  sgst: Number(it.sgst),
+                  total: Number(it.total),
+                })),
+              });
+            }}
+          >
+            <Printer className="h-4 w-4" /> Print / Download PDF
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );
