@@ -11,7 +11,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, Search, Layers } from "lucide-react";
+import { AdminProductVariants } from "./AdminProductVariants";
 
 const ProductForm = ({ product, categories, onSave }: any) => {
   const [form, setForm] = useState(product || {
