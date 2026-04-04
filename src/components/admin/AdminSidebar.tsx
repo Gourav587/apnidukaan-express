@@ -1,5 +1,5 @@
 import {
-  LayoutDashboard, Package, ShoppingCart, Warehouse, Users, BarChart3, Settings, BookOpen, Truck, Receipt, Wallet, Tags, FileText
+  LayoutDashboard, Package, ShoppingCart, Warehouse, Users, BarChart3, Settings, BookOpen, Truck, Receipt, Wallet, Tags, FileText, Building2, CreditCard, PieChart
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -22,7 +22,13 @@ const businessItems = [
   { title: "Delivery", url: "/admin/delivery", icon: Truck },
   { title: "POS Records", url: "/admin/pos", icon: Receipt },
   { title: "Khata", url: "/admin/khata", icon: Wallet },
+];
+
+const accountingItems = [
   { title: "Billing", url: "/admin/billing", icon: FileText },
+  { title: "Purchases", url: "/admin/purchases", icon: CreditCard },
+  { title: "Parties", url: "/admin/parties", icon: Building2 },
+  { title: "Reports", url: "/admin/reports", icon: PieChart },
 ];
 
 const insightItems = [
@@ -78,6 +84,7 @@ export function AdminSidebar() {
       <SidebarContent>
         <NavGroup label="Main" items={mainItems} />
         <NavGroup label="Business" items={businessItems} />
+        <NavGroup label="Accounting" items={accountingItems} />
         <NavGroup label="Insights" items={insightItems} />
       </SidebarContent>
     </Sidebar>

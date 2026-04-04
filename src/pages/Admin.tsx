@@ -18,6 +18,9 @@ import { AdminKhata } from "@/components/admin/AdminKhata";
 import { AdminAnalytics } from "@/components/admin/AdminAnalytics";
 import { AdminSettings } from "@/components/admin/AdminSettings";
 import { AdminBilling } from "@/components/admin/AdminBilling";
+import { AdminParties } from "@/components/admin/AdminParties";
+import { AdminPurchases } from "@/components/admin/AdminPurchases";
+import { AdminReports } from "@/components/admin/AdminReports";
 import { useOrderNotifications } from "@/hooks/use-order-notifications";
 
 const Admin = () => {
@@ -65,6 +68,9 @@ const Admin = () => {
               <Route path="analytics" element={<AdminAnalytics />} />
               <Route path="settings" element={<AdminSettings />} />
               <Route path="billing" element={<AdminBilling />} />
+              <Route path="parties" element={<AdminParties />} />
+              <Route path="purchases" element={<AdminPurchases />} />
+              <Route path="reports" element={<AdminReports />} />
             </Routes>
           </main>
         </div>
