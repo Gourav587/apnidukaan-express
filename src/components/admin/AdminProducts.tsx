@@ -97,6 +97,7 @@ export function AdminProducts() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<any>(null);
   const [search, setSearch] = useState("");
+  const [variantsProduct, setVariantsProduct] = useState<any>(null);
 
   const { data: products } = useQuery({
     queryKey: ["admin-products"],
